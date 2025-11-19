@@ -14,9 +14,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent } from '@/components/ui/card'
-import { Customer, DealMemo } from '@/lib/dummy-data'
+import { Customer, DealMemo, InventoryItem } from '@/lib/dummy-data'
 import { useToast } from '@/hooks/use-toast'
-import { Plus, FileText } from 'lucide-react'
+import { Plus, FileText, Package } from 'lucide-react'
+import { InventorySelectorDialog } from './inventory-selector-dialog'
+import { getInventoryByVin } from '@/lib/inventory-utils'
 
 const AUCTION_HOUSES = ['オークション会場A', 'オークション会場B', 'オークション会場C']
 const SHIPPING_FEES = {
@@ -38,6 +40,7 @@ export function CustomerDealTab({
 }: CustomerDealTabProps) {
   const { toast } = useToast()
   const [memoText, setMemoText] = useState('')
+  const [isInventorySelectorOpen, setIsInventorySelectorOpen] = useState(false)
 
   const handleDealInfoChange = (field: string, value: any) => {
     setFormData({
@@ -95,6 +98,73 @@ export function CustomerDealTab({
     }, 10)
   }
 
+  // 在庫から選択
+  const handleInventorySelect = (item: InventoryItem) => {
+    handleDealInfoChange('vinNumber', item.vehicleInfo.vinNumber)
+    handleDealInfoChange('carModel', item.vehicleInfo.carModel)
+    handleDealInfoChange('maker', item.vehicleInfo.maker)
+    
+    // 顧客データの車台番号と車種も更新
+    setFormData({
+      ...formData,
+      vinNumber: item.vehicleInfo.vinNumber,
+      carModel: item.vehicleInfo.carModel,
+      dealInfo: {
+        ...formData.dealInfo,
+        vinNumber: item.vehicleInfo.vinNumber,
+        carModel: item.vehicleInfo.carModel,
+        maker: item.vehicleInfo.maker,
+      },
+    })
+    
+    toast({
+      title: '在庫情報を反映しました',
+      description: `${item.vehicleInfo.carModel} (${item.vehicleInfo.vinNumber})`,
+    })
+  }
+
+  // 車台番号入力時の自動補完
+  const handleVinNumberChange = (vinNumber: string) => {
+    handleDealInfoChange('vinNumber', vinNumber)
+    
+    // 顧客データの車台番号も更新
+    setFormData({
+      ...formData,
+      vinNumber: vinNumber,
+      dealInfo: {
+        ...formData.dealInfo,
+        vinNumber: vinNumber,
+      },
+    })
+    
+    // 17桁入力されたら自動補完を試みる
+    if (vinNumber.length === 17) {
+      const inventory = getInventoryByVin(vinNumber)
+      if (inventory) {
+        handleDealInfoChange('carModel', inventory.vehicleInfo.carModel)
+        handleDealInfoChange('maker', inventory.vehicleInfo.maker)
+        
+        // 顧客データの車種も更新
+        setFormData({
+          ...formData,
+          vinNumber: vinNumber,
+          carModel: inventory.vehicleInfo.carModel,
+          dealInfo: {
+            ...formData.dealInfo,
+            vinNumber: vinNumber,
+            carModel: inventory.vehicleInfo.carModel,
+            maker: inventory.vehicleInfo.maker,
+          },
+        })
+        
+        toast({
+          title: '在庫データから自動補完しました',
+          description: `${inventory.vehicleInfo.carModel} - ${inventory.vehicleInfo.maker}`,
+        })
+      }
+    }
+  }
+
   return (
     <div className="space-y-6 py-4">
       {/* Vehicle Information */}
@@ -102,10 +172,21 @@ export function CustomerDealTab({
         <CardContent className="pt-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold">車両情報</h3>
-            <Button variant="outline" size="sm" className="gap-2">
-              <FileText className="h-4 w-4" />
-              この車で見積を作成
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+                onClick={() => setIsInventorySelectorOpen(true)}
+              >
+                <Package className="h-4 w-4" />
+                在庫から選択
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2">
+                <FileText className="h-4 w-4" />
+                この車で見積を作成
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
@@ -114,10 +195,13 @@ export function CustomerDealTab({
               <Input
                 id="vinNumber"
                 value={formData.dealInfo.vinNumber}
-                onChange={(e) => handleDealInfoChange('vinNumber', e.target.value)}
+                onChange={(e) => handleVinNumberChange(e.target.value)}
                 placeholder="12345678901234567"
                 maxLength={17}
               />
+              <p className="text-[10px] text-muted-foreground">
+                17桁入力で在庫から自動補完されます
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -290,6 +374,14 @@ export function CustomerDealTab({
         </Button>
         <Button onClick={handleSave}>自動保存</Button>
       </div>
+
+      {/* 在庫選択ダイアログ */}
+      <InventorySelectorDialog
+        open={isInventorySelectorOpen}
+        onOpenChange={setIsInventorySelectorOpen}
+        onSelect={handleInventorySelect}
+        showAvailableOnly={true}
+      />
     </div>
   )
 }

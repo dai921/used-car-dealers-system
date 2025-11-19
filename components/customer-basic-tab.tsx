@@ -22,12 +22,14 @@ interface CustomerBasicTabProps {
   formData: Customer
   setFormData: (data: Customer) => void
   onSave: () => void
+  onDelete?: () => void
 }
 
 export function CustomerBasicTab({
   formData,
   setFormData,
   onSave,
+  onDelete,
 }: CustomerBasicTabProps) {
   const { toast } = useToast()
 
@@ -275,11 +277,18 @@ export function CustomerBasicTab({
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 border-t pt-4">
-        <Button variant="outline" onClick={() => window.history.back()}>
-          閉じる
-        </Button>
-        <Button onClick={handleSave}>自動保存</Button>
+      <div className="flex justify-between border-t pt-4">
+        {onDelete && (
+          <Button variant="destructive" onClick={onDelete}>
+            削除
+          </Button>
+        )}
+        <div className={`flex gap-2 ${!onDelete ? 'w-full justify-end' : 'ml-auto'}`}>
+          <Button variant="outline" onClick={() => window.history.back()}>
+            閉じる
+          </Button>
+          <Button onClick={handleSave}>自動保存</Button>
+        </div>
       </div>
     </div>
   )

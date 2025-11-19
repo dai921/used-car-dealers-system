@@ -315,11 +315,17 @@ export interface SalesInfo {
   notes: string
 }
 
+export type InventoryStatus = 'available' | 'negotiating' | 'sold' | 'cancelled'
+
 export interface InventoryItem {
   id: string
   purchaseInfo: PurchaseInfo
   vehicleInfo: VehicleInfo
   salesInfo: SalesInfo
+  status: InventoryStatus
+  customerId: string | null
+  reservedDate: string
+  soldDate: string
 }
 
 // ============ 在庫管理用のダミーデータ ============
@@ -371,6 +377,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: '人気車種、状態良好',
     },
+    status: 'negotiating',
+    customerId: 'C001',
+    reservedDate: '2025-01-15',
+    soldDate: '',
   },
   {
     id: 'INV002',
@@ -414,6 +424,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: 'ワンオーナー、禁煙車',
     },
+    status: 'sold',
+    customerId: 'C002',
+    reservedDate: '2025-01-08',
+    soldDate: '2025-01-20',
   },
   {
     id: 'INV003',
@@ -461,6 +475,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: '7人乗り、ファミリーに人気',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
   {
     id: 'INV004',
@@ -507,6 +525,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: '高級ミニバン、上質な内装',
     },
+    status: 'negotiating',
+    customerId: 'C004',
+    reservedDate: '2025-01-12',
+    soldDate: '',
   },
   {
     id: 'INV005',
@@ -550,6 +572,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: '軽自動車、燃費良好',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
   {
     id: 'INV006',
@@ -596,6 +622,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: 'スポーツグレード',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
   {
     id: 'INV007',
@@ -639,6 +669,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: false,
       notes: '入庫次第展示予定',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
   {
     id: 'INV008',
@@ -684,6 +718,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: '実用的なセダン',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
   {
     id: 'INV009',
@@ -731,6 +769,10 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: 'e-POWER搭載、低燃費',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
   {
     id: 'INV010',
@@ -774,5 +816,9 @@ export const DUMMY_INVENTORY: InventoryItem[] = [
       onlinePosted: true,
       notes: 'コンパクトカー、新しめ',
     },
+    status: 'available',
+    customerId: null,
+    reservedDate: '',
+    soldDate: '',
   },
 ]

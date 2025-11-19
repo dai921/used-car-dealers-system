@@ -29,6 +29,7 @@ import {
 import { Plus, Search, RotateCcw, Settings2, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { CustomerModal } from '@/components/customer-modal'
 import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
+import { updateInventoryFromCustomer, releaseInventory } from '@/lib/inventory-utils'
 
 const STORES = ['本店', '支店A', '支店B']
 const SALES_REPS = ['高橋', '鈴木', '佐藤', '田中']
@@ -305,27 +306,55 @@ export default function CustomersPage() {
     console.log('[v0] Saving customer:', customer)
     
     let updated: Customer[]
+    let savedCustomer: Customer
     
     if (selectedCustomer) {
+      savedCustomer = { ...customer, id: selectedCustomer.id }
       updated = customers.map(c => 
-        c.id === selectedCustomer.id ? { ...customer, id: selectedCustomer.id } : c
+        c.id === selectedCustomer.id ? savedCustomer : c
       )
       console.log('[v0] Updated existing customer')
+      
+      // 在庫ステータスの更新（車台番号が変更された場合は旧在庫を解放）
+      updateInventoryFromCustomer(savedCustomer, selectedCustomer.vinNumber)
     } else {
-      const newCustomer = { 
+      savedCustomer = { 
         ...customer, 
         id: `C${String(customers.length + 1).padStart(3, '0')}`,
         addedDate: new Date().toISOString().split('T')[0]
       }
-      updated = [...customers, newCustomer]
-      console.log('[v0] Added new customer:', newCustomer)
+      updated = [...customers, savedCustomer]
+      console.log('[v0] Added new customer:', savedCustomer)
+      
+      // 在庫ステータスの更新
+      updateInventoryFromCustomer(savedCustomer)
     }
     
     localStorage.setItem('customers', JSON.stringify(updated))
     setCustomers(updated)
 
-
     console.log('[v0] Updated customer list and saved to localStorage')
+    console.log('[v0] Updated inventory status for VIN:', savedCustomer.vinNumber)
+    
+    setIsModalOpen(false)
+    setSelectedCustomer(null)
+  }
+
+  const handleDelete = (customer: Customer) => {
+    console.log('[v0] Deleting customer:', customer)
+    
+    // 顧客に紐づく在庫を解放
+    if (customer.vinNumber) {
+      releaseInventory(customer.vinNumber)
+      console.log('[v0] Released inventory for VIN:', customer.vinNumber)
+    }
+    
+    // 顧客リストから削除
+    const updated = customers.filter(c => c.id !== customer.id)
+    localStorage.setItem('customers', JSON.stringify(updated))
+    setCustomers(updated)
+    
+    console.log('[v0] Deleted customer from list')
     
     setIsModalOpen(false)
     setSelectedCustomer(null)
@@ -716,6 +745,7 @@ export default function CustomersPage() {
         onOpenChange={setIsModalOpen}
         customer={selectedCustomer}
         onSave={handleSave}
+        onDelete={handleDelete}
       />
     </div>
   )

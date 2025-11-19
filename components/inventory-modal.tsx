@@ -71,6 +71,10 @@ export function InventoryModal({
         onlinePosted: false,
         notes: '',
       },
+      status: 'available',
+      customerId: null,
+      reservedDate: '',
+      soldDate: '',
     }
   )
 
@@ -119,6 +123,10 @@ export function InventoryModal({
           onlinePosted: false,
           notes: '',
         },
+        status: 'available',
+        customerId: null,
+        reservedDate: '',
+        soldDate: '',
       })
     }
   }, [item, open])

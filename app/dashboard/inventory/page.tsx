@@ -27,12 +27,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Plus, Search, RotateCcw, Settings2, Edit, ArrowUpDown, ArrowUp, ArrowDown, Globe } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { InventoryModal } from '@/components/inventory-modal'
 import { DUMMY_INVENTORY, InventoryItem } from '@/lib/dummy-data'
+import { 
+  getCustomerNameByInventory, 
+  getStatusLabel, 
+  getStatusColorClass 
+} from '@/lib/inventory-utils'
 
 const STORES = ['本店', '支店A', '支店B']
 const PURCHASE_MANAGERS = ['高橋', '鈴木', '佐藤', '田中']
 const PURCHASE_TYPES = ['オークション', '下取', 'その他']
+const INVENTORY_STATUSES = ['在庫中', '商談中', '販売済み', 'キャンセル']
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<InventoryItem[]>([])
@@ -46,6 +53,7 @@ export default function InventoryPage() {
   const [arrivalDateFrom, setArrivalDateFrom] = useState('')
   const [arrivalDateTo, setArrivalDateTo] = useState('')
   const [purchaseType, setPurchaseType] = useState('')
+  const [inventoryStatus, setInventoryStatus] = useState('')
   const [inventoryDaysFrom, setInventoryDaysFrom] = useState('')
   const [inventoryDaysTo, setInventoryDaysTo] = useState('')
 
@@ -54,6 +62,8 @@ export default function InventoryPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const [visibleColumns, setVisibleColumns] = useState({
+    status: true,
+    customerName: false,
     purchaseDate: true,
     arrivalDate: true,
     purchasePrice: true,
@@ -118,6 +128,19 @@ export default function InventoryPage() {
       filtered = filtered.filter(item => item.purchaseInfo.purchaseType === purchaseType)
     }
 
+    if (inventoryStatus && inventoryStatus !== 'all') {
+      const statusMap: Record<string, string> = {
+        '在庫中': 'available',
+        '商談中': 'negotiating',
+        '販売済み': 'sold',
+        'キャンセル': 'cancelled',
+      }
+      const statusValue = statusMap[inventoryStatus]
+      if (statusValue) {
+        filtered = filtered.filter(item => item.status === statusValue)
+      }
+    }
+
     if (inventoryDaysFrom || inventoryDaysTo) {
       filtered = filtered.filter(item => {
         const days = calculateInventoryDays(item.purchaseInfo.arrivalDate)
@@ -128,7 +151,7 @@ export default function InventoryPage() {
     }
 
     setFilteredInventory(filtered)
-  }, [inventory, purchaseDateFrom, purchaseDateTo, arrivalDateFrom, arrivalDateTo, purchaseType, inventoryDaysFrom, inventoryDaysTo])
+  }, [inventory, purchaseDateFrom, purchaseDateTo, arrivalDateFrom, arrivalDateTo, purchaseType, inventoryStatus, inventoryDaysFrom, inventoryDaysTo])
 
   // Sort filtered inventory
   const sortedInventory = [...filteredInventory].sort((a, b) => {
@@ -192,6 +215,7 @@ export default function InventoryPage() {
     setArrivalDateFrom('')
     setArrivalDateTo('')
     setPurchaseType('')
+    setInventoryStatus('')
     setInventoryDaysFrom('')
     setInventoryDaysTo('')
     setSortColumn(null)
@@ -328,7 +352,7 @@ export default function InventoryPage() {
               />
             </div>
 
-            {/* 仕入元 */}
+            {/* 仕入区分 */}
             <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">仕入区分</Label>
               <Select value={purchaseType} onValueChange={setPurchaseType}>
@@ -339,6 +363,22 @@ export default function InventoryPage() {
                   <SelectItem value="all">全て</SelectItem>
                   {PURCHASE_TYPES.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* ステータス */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">ステータス</Label>
+              <Select value={inventoryStatus} onValueChange={setInventoryStatus}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全て" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全て</SelectItem>
+                  {INVENTORY_STATUSES.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -398,6 +438,22 @@ export default function InventoryPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.status}
+                  onCheckedChange={(checked) =>
+                    setVisibleColumns({ ...visibleColumns, status: checked })
+                  }
+                >
+                  ステータス
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={visibleColumns.customerName}
+                  onCheckedChange={(checked) =>
+                    setVisibleColumns({ ...visibleColumns, customerName: checked })
+                  }
+                >
+                  顧客名
+                </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
                   checked={visibleColumns.purchaseDate}
                   onCheckedChange={(checked) =>
@@ -495,6 +551,8 @@ export default function InventoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {visibleColumns.status && <TableHead className="w-[90px]">ステータス</TableHead>}
+                  {visibleColumns.customerName && <TableHead className="w-[120px]">顧客名</TableHead>}
                   {visibleColumns.purchaseDate && <SortableHeader column="purchaseDate" className="w-[100px]">仕入日</SortableHeader>}
                   {visibleColumns.arrivalDate && <SortableHeader column="arrivalDate" className="w-[100px]">入庫日</SortableHeader>}
                   {visibleColumns.purchasePrice && <SortableHeader column="purchasePrice" className="w-[110px]">仕入原価</SortableHeader>}
@@ -512,8 +570,24 @@ export default function InventoryPage() {
               <TableBody>
                 {sortedInventory.map((item) => {
                   const inventoryDays = calculateInventoryDays(item.purchaseInfo.arrivalDate)
+                  const customerName = getCustomerNameByInventory(item)
                   return (
                     <TableRow key={item.id}>
+                      {visibleColumns.status && (
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className={`text-[10px] ${getStatusColorClass(item.status)}`}
+                          >
+                            {getStatusLabel(item.status)}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      {visibleColumns.customerName && (
+                        <TableCell className="text-xs">
+                          {customerName || '-'}
+                        </TableCell>
+                      )}
                       {visibleColumns.purchaseDate && (
                         <TableCell className="whitespace-nowrap text-xs">{item.purchaseInfo.purchaseDate}</TableCell>
                       )}

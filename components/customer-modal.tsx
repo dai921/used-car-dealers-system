@@ -18,6 +18,7 @@ interface CustomerModalProps {
   onOpenChange: (open: boolean) => void
   customer: Customer | null
   onSave: (customer: Customer) => void
+  onDelete?: (customer: Customer) => void
 }
 
 export function CustomerModal({
@@ -25,6 +26,7 @@ export function CustomerModal({
   onOpenChange,
   customer,
   onSave,
+  onDelete,
 }: CustomerModalProps) {
   const [formData, setFormData] = useState<Customer>(
     customer || {
@@ -43,6 +45,7 @@ export function CustomerModal({
       store: '',
       contractDate: '',
       deliveryStatus: '納車待ち',
+      carType: '中古車',
       address: '',
       memo: '',
       carModel: '',
@@ -77,6 +80,14 @@ export function CustomerModal({
     onSave(formData)
   }
 
+  const handleDelete = () => {
+    if (customer && onDelete) {
+      if (window.confirm(`${customer.name} さんの情報を削除してもよろしいですか？\n\nこの操作は取り消せません。`)) {
+        onDelete(customer)
+      }
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -103,6 +114,7 @@ export function CustomerModal({
               formData={formData}
               setFormData={setFormData}
               onSave={handleSave}
+              onDelete={customer && onDelete ? handleDelete : undefined}
             />
           </TabsContent>
 
