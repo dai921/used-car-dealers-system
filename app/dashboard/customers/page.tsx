@@ -63,7 +63,7 @@ export default function CustomersPage() {
     contractDate: true,
     deliveryStatus: true,
     customerName: true,
-    furigana: true,
+    furigana: false,
     phone: true,
     email: true,
     address: true,
