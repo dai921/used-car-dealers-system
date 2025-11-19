@@ -34,6 +34,8 @@ const STORES = ['本店', '支店A', '支店B']
 const SALES_REPS = ['高橋', '鈴木', '佐藤', '田中']
 const DELIVERY_STATUSES = ['納車済み', '納車待ち', '商談中']
 const CAR_MODELS = ['プリウス', 'アクア', 'ヴォクシー', 'アルファード', 'N-BOX', 'フィット']
+const CAR_TYPES = ['新車', '中古車']
+
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -47,13 +49,14 @@ export default function CustomersPage() {
   const [salesRep, setSalesRep] = useState('')
   const [store, setStore] = useState('')
   const [dateFilter, setDateFilter] = useState('all')
-  
+  const [carType, setCarType] = useState('')
   const [deliveryStatus, setDeliveryStatus] = useState('')
   const [carModel, setCarModel] = useState('')
   const [customerNameSearch, setCustomerNameSearch] = useState('')
   const [memoSearch, setMemoSearch] = useState('')
   const [contractDateFrom, setContractDateFrom] = useState('')
   const [contractDateTo, setContractDateTo] = useState('')
+
 
   const [visibleColumns, setVisibleColumns] = useState({
     contractDate: true,
@@ -170,6 +173,7 @@ export default function CustomersPage() {
       filtered = filtered.filter(c => c.contractDate <= contractDateTo)
     }
 
+
     setFilteredCustomers(filtered)
   }
 
@@ -218,6 +222,8 @@ export default function CustomersPage() {
     
     localStorage.setItem('customers', JSON.stringify(updated))
     setCustomers(updated)
+
+
     console.log('[v0] Updated customer list and saved to localStorage')
     
     setIsModalOpen(false)

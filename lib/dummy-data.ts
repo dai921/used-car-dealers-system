@@ -43,6 +43,7 @@ export interface Customer {
   store: string
   contractDate: string
   deliveryStatus: string
+  carType: string
   address: string
   memo: string
   carModel: string
@@ -69,6 +70,7 @@ export const DUMMY_CUSTOMERS: Customer[] = [
     deliveryStatus: '納車待ち',
     address: '愛知県名古屋市中区栄1-2-3 サンプルビル4F',
     memo: '初回商談済み',
+    carType: '新車',
     carModel: 'プリウス',
     vinNumber: '12345678901234567',
     dealInfo: {
@@ -110,6 +112,7 @@ export const DUMMY_CUSTOMERS: Customer[] = [
     deliveryStatus: '納車済み',
     address: '愛知県名古屋市千種区今池5-6-7',
     memo: '紹介案件',
+    carType: '中古車',
     carModel: 'アクア',
     vinNumber: '98765432109876543',
     dealInfo: {
@@ -151,6 +154,7 @@ export const DUMMY_CUSTOMERS: Customer[] = [
     deliveryStatus: '納車待ち',
     address: '愛知県名古屋市中村区名駅3-4-5 ABCビル10F',
     memo: '法人契約',
+    carType: '中古車',
     carModel: 'カローラ',
     vinNumber: '11122233344455566',
     dealInfo: {
@@ -188,9 +192,10 @@ export const DUMMY_CUSTOMERS: Customer[] = [
     addedDate: '2025-01-08',
     store: '支店B',
     contractDate: '2025-01-22',
-    deliveryStatus: '納車待ち',
+    deliveryStatus: '納車待ち', 
     address: '愛知県名古屋市天白区塩釜口2-1-1',
     memo: '下取り希望',
+    carType: '中古車',
     carModel: 'フィット',
     vinNumber: '77788899900011122',
     dealInfo: {
@@ -229,7 +234,8 @@ export const DUMMY_CUSTOMERS: Customer[] = [
     deliveryStatus: '商談中',
     address: '愛知県名古屋市東区泉1-23-45',
     memo: '予算要確認',
-    carModel: '',
+    carType: '新車',
+    carModel: '', 
     vinNumber: '',
     dealInfo: {
       vinNumber: '',
