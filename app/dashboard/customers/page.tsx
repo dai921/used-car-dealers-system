@@ -26,7 +26,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Plus, Search, RotateCcw, Settings2, Edit, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, Search, RotateCcw, Settings2, Edit } from 'lucide-react'
 import { CustomerModal } from '@/components/customer-modal'
 import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
 
@@ -42,8 +42,6 @@ export default function CustomersPage() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   
   // Filter states
   const [salesRep, setSalesRep] = useState('')
@@ -107,8 +105,29 @@ export default function CustomersPage() {
       filtered = filtered.filter(c => c.deliveryStatus === deliveryStatus)
     }
 
+    if (carType && carType !== 'all') {
+      filtered = filtered.filter(c => c.carType === carType)
+    }
+
     if (carModel && carModel !== 'all') {
       filtered = filtered.filter(c => c.carModel === carModel)
+    }
+
+    // 商談日フィルタ（contractDateを基準に）
+    if (dateFilter && dateFilter !== 'all') {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = today.getMonth()
+      
+      if (dateFilter === 'thisMonth') {
+        const firstDay = new Date(year, month, 1).toISOString().split('T')[0]
+        const lastDay = new Date(year, month + 1, 0).toISOString().split('T')[0]
+        filtered = filtered.filter(c => c.contractDate >= firstDay && c.contractDate <= lastDay)
+      } else if (dateFilter === 'lastMonth') {
+        const firstDay = new Date(year, month - 1, 1).toISOString().split('T')[0]
+        const lastDay = new Date(year, month, 0).toISOString().split('T')[0]
+        filtered = filtered.filter(c => c.contractDate >= firstDay && c.contractDate <= lastDay)
+      }
     }
 
     if (customerNameSearch) {
@@ -132,7 +151,7 @@ export default function CustomersPage() {
     }
 
     setFilteredCustomers(filtered)
-  }, [customers, salesRep, store, deliveryStatus, carModel, customerNameSearch, memoSearch, contractDateFrom, contractDateTo])
+  }, [customers, salesRep, store, deliveryStatus, carType, carModel, dateFilter, customerNameSearch, memoSearch, contractDateFrom, contractDateTo])
 
   const handleSearch = () => {
     let filtered = [...customers]
@@ -149,8 +168,29 @@ export default function CustomersPage() {
       filtered = filtered.filter(c => c.deliveryStatus === deliveryStatus)
     }
 
+    if (carType && carType !== 'all') {
+      filtered = filtered.filter(c => c.carType === carType)
+    }
+
     if (carModel && carModel !== 'all') {
       filtered = filtered.filter(c => c.carModel === carModel)
+    }
+
+    // 商談日フィルタ（contractDateを基準に）
+    if (dateFilter && dateFilter !== 'all') {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = today.getMonth()
+      
+      if (dateFilter === 'thisMonth') {
+        const firstDay = new Date(year, month, 1).toISOString().split('T')[0]
+        const lastDay = new Date(year, month + 1, 0).toISOString().split('T')[0]
+        filtered = filtered.filter(c => c.contractDate >= firstDay && c.contractDate <= lastDay)
+      } else if (dateFilter === 'lastMonth') {
+        const firstDay = new Date(year, month - 1, 1).toISOString().split('T')[0]
+        const lastDay = new Date(year, month, 0).toISOString().split('T')[0]
+        filtered = filtered.filter(c => c.contractDate >= firstDay && c.contractDate <= lastDay)
+      }
     }
 
     if (customerNameSearch) {
@@ -173,7 +213,6 @@ export default function CustomersPage() {
       filtered = filtered.filter(c => c.contractDate <= contractDateTo)
     }
 
-
     setFilteredCustomers(filtered)
   }
 
@@ -182,6 +221,7 @@ export default function CustomersPage() {
     setStore('')
     setDateFilter('all')
     setDeliveryStatus('')
+    setCarType('')
     setCarModel('')
     setCustomerNameSearch('')
     setMemoSearch('')
@@ -243,165 +283,154 @@ export default function CustomersPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-2 py-1.5">
-          <div className="space-y-1.5">
-            {/* 基本フィルター */}
-            <div className="grid gap-1.5 md:grid-cols-2 lg:grid-cols-4">
-              <div className="space-y-0.5">
-                <Label className="text-xs">担当者</Label>
-                <Select value={salesRep} onValueChange={setSalesRep}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="全て" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全て</SelectItem>
-                    {SALES_REPS.map(rep => (
-                      <SelectItem key={rep} value={rep}>{rep}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-0.5">
-                <Label className="text-xs">商談日</Label>
-                <Select value={dateFilter} onValueChange={setDateFilter}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全期間</SelectItem>
-                    <SelectItem value="thisMonth">今月</SelectItem>
-                    <SelectItem value="lastMonth">先月</SelectItem>
-                    <SelectItem value="custom">期間指定</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-0.5">
-                <Label className="text-xs">納車日</Label>
-                <Select>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="全期間" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全期間</SelectItem>
-                    <SelectItem value="thisMonth">今月</SelectItem>
-                    <SelectItem value="lastMonth">先月</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-0.5">
-                <Label className="text-xs">店舗</Label>
-                <Select value={store} onValueChange={setStore}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="全て" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全て</SelectItem>
-                    {STORES.map(s => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        <CardContent className="p-3">
+          <div className="flex flex-wrap items-end gap-2">
+            {/* 担当者 */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">担当者</Label>
+              <Select value={salesRep} onValueChange={setSalesRep}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全て" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全て</SelectItem>
+                  {SALES_REPS.map(rep => (
+                    <SelectItem key={rep} value={rep}>{rep}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 高度フィルタ */}
-            <div className="border-t pt-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className="gap-1 text-xs h-6 px-2"
-              >
-                {showAdvancedFilters ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                高度フィルタ
-              </Button>
-              
-              {showAdvancedFilters && (
-                <div className="mt-1.5 grid gap-1.5 md:grid-cols-2 lg:grid-cols-3">
-                  <div className="space-y-0.5">
-                    <Label className="text-xs">納車状況</Label>
-                    <Select value={deliveryStatus} onValueChange={setDeliveryStatus}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue placeholder="全て" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">全て</SelectItem>
-                        {DELIVERY_STATUSES.map(status => (
-                          <SelectItem key={status} value={status}>{status}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <Label className="text-xs">車種</Label>
-                    <Select value={carModel} onValueChange={setCarModel}>
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue placeholder="全て" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">全て</SelectItem>
-                        {CAR_MODELS.map(model => (
-                          <SelectItem key={model} value={model}>{model}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <Label className="text-xs">顧客名検索</Label>
-                    <Input 
-                      placeholder="顧客名を入力" 
-                      value={customerNameSearch}
-                      onChange={(e) => setCustomerNameSearch(e.target.value)}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <Label className="text-xs">契約日（開始）</Label>
-                    <Input 
-                      type="date" 
-                      value={contractDateFrom}
-                      onChange={(e) => setContractDateFrom(e.target.value)}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <Label className="text-xs">契約日（終了）</Label>
-                    <Input 
-                      type="date" 
-                      value={contractDateTo}
-                      onChange={(e) => setContractDateTo(e.target.value)}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <Label className="text-xs">メモ検索</Label>
-                    <Input 
-                      placeholder="メモ内容を入力" 
-                      value={memoSearch}
-                      onChange={(e) => setMemoSearch(e.target.value)}
-                      className="h-7 text-xs"
-                    />
-                  </div>
-                </div>
-              )}
+            {/* 店舗 */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">店舗</Label>
+              <Select value={store} onValueChange={setStore}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全て" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全て</SelectItem>
+                  {STORES.map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* 検索ボタン */}
-            <div className="flex gap-1.5 pt-0.5">
-              <Button onClick={handleSearch} className="gap-1 h-7 text-xs">
+            {/* 納車状況 */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">納車状況</Label>
+              <Select value={deliveryStatus} onValueChange={setDeliveryStatus}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全て" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全て</SelectItem>
+                  {DELIVERY_STATUSES.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 車種区分（新車/中古車） */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">車種区分</Label>
+              <Select value={carType} onValueChange={setCarType}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全て" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全て</SelectItem>
+                  {CAR_TYPES.map(type => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 商談日 */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">商談日</Label>
+              <Select value={dateFilter} onValueChange={setDateFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全期間" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全期間</SelectItem>
+                  <SelectItem value="thisMonth">今月</SelectItem>
+                  <SelectItem value="lastMonth">先月</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 車種 */}
+            <div className="space-y-0.5 min-w-[120px]">
+              <Label className="text-xs">車種</Label>
+              <Select value={carModel} onValueChange={setCarModel}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="全て" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全て</SelectItem>
+                  {CAR_MODELS.map(model => (
+                    <SelectItem key={model} value={model}>{model}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 顧客名検索 */}
+            <div className="space-y-0.5 min-w-[140px]">
+              <Label className="text-xs">顧客名</Label>
+              <Input 
+                placeholder="顧客名を入力" 
+                value={customerNameSearch}
+                onChange={(e) => setCustomerNameSearch(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            {/* 契約日（開始） */}
+            <div className="space-y-0.5 min-w-[140px]">
+              <Label className="text-xs">契約日（開始）</Label>
+              <Input 
+                type="date" 
+                value={contractDateFrom}
+                onChange={(e) => setContractDateFrom(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            {/* 契約日（終了） */}
+            <div className="space-y-0.5 min-w-[140px]">
+              <Label className="text-xs">契約日（終了）</Label>
+              <Input 
+                type="date" 
+                value={contractDateTo}
+                onChange={(e) => setContractDateTo(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            {/* メモ検索 */}
+            <div className="space-y-0.5 min-w-[140px]">
+              <Label className="text-xs">メモ</Label>
+              <Input 
+                placeholder="メモ内容を入力" 
+                value={memoSearch}
+                onChange={(e) => setMemoSearch(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            {/* 検索・リセットボタン */}
+            <div className="flex gap-2 ml-auto">
+              <Button onClick={handleSearch} className="gap-1 h-8 text-xs px-3">
                 <Search className="h-3 w-3" />
                 検索
               </Button>
-              <Button onClick={handleReset} variant="outline" className="gap-1 h-7 text-xs">
+              <Button onClick={handleReset} variant="outline" className="gap-1 h-8 text-xs px-3">
                 <RotateCcw className="h-3 w-3" />
                 リセット
               </Button>
