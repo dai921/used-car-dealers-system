@@ -26,7 +26,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Plus, Search, RotateCcw, Settings2, Edit } from 'lucide-react'
+import { Plus, Search, RotateCcw, Settings2, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { CustomerModal } from '@/components/customer-modal'
 import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
 
@@ -55,6 +55,9 @@ export default function CustomersPage() {
   const [contractDateFrom, setContractDateFrom] = useState('')
   const [contractDateTo, setContractDateTo] = useState('')
 
+  // Sort states
+  const [sortColumn, setSortColumn] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const [visibleColumns, setVisibleColumns] = useState({
     contractDate: true,
@@ -153,6 +156,38 @@ export default function CustomersPage() {
     setFilteredCustomers(filtered)
   }, [customers, salesRep, store, deliveryStatus, carType, carModel, dateFilter, customerNameSearch, memoSearch, contractDateFrom, contractDateTo])
 
+  // Sort filtered customers
+  const sortedCustomers = [...filteredCustomers].sort((a, b) => {
+    if (!sortColumn) return 0
+
+    let aValue: any = a[sortColumn as keyof Customer]
+    let bValue: any = b[sortColumn as keyof Customer]
+
+    // Handle empty values
+    if (!aValue) aValue = ''
+    if (!bValue) bValue = ''
+
+    // Compare values
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
+    return 0
+  })
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      // Toggle direction or clear sort
+      if (sortDirection === 'asc') {
+        setSortDirection('desc')
+      } else {
+        setSortColumn(null)
+        setSortDirection('asc')
+      }
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
+
   const handleSearch = () => {
     let filtered = [...customers]
 
@@ -227,7 +262,33 @@ export default function CustomersPage() {
     setMemoSearch('')
     setContractDateFrom('')
     setContractDateTo('')
+    setSortColumn(null)
+    setSortDirection('asc')
     setFilteredCustomers(customers)
+  }
+
+  const SortableHeader = ({ column, children, className }: { column: string; children: React.ReactNode; className?: string }) => {
+    return (
+      <TableHead className={className}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2 hover:bg-accent -ml-2"
+          onClick={() => handleSort(column)}
+        >
+          {children}
+          {sortColumn === column ? (
+            sortDirection === 'asc' ? (
+              <ArrowUp className="ml-1 h-3 w-3" />
+            ) : (
+              <ArrowDown className="ml-1 h-3 w-3" />
+            )
+          ) : (
+            <ArrowUpDown className="ml-1 h-3 w-3 opacity-50" />
+          )}
+        </Button>
+      </TableHead>
+    )
   }
 
   const handleAddNew = () => {
@@ -567,16 +628,16 @@ export default function CustomersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {visibleColumns.contractDate && <TableHead className="w-[100px]">契約日</TableHead>}
-                  {visibleColumns.deliveryStatus && <TableHead className="w-[90px]">納車状況</TableHead>}
-                  {visibleColumns.customerName && <TableHead className="w-[120px]">顧客名</TableHead>}
+                  {visibleColumns.contractDate && <SortableHeader column="contractDate" className="w-[100px]">契約日</SortableHeader>}
+                  {visibleColumns.deliveryStatus && <SortableHeader column="deliveryStatus" className="w-[90px]">納車状況</SortableHeader>}
+                  {visibleColumns.customerName && <SortableHeader column="name" className="w-[120px]">顧客名</SortableHeader>}
                   {visibleColumns.furigana && <TableHead className="w-[140px]">フリガナ</TableHead>}
                   {visibleColumns.phone && <TableHead className="w-[130px]">電話番号</TableHead>}
                   {visibleColumns.email && <TableHead className="w-[180px]">Email</TableHead>}
                   {visibleColumns.address && <TableHead className="w-[200px]">住所</TableHead>}
-                  {visibleColumns.store && <TableHead className="w-[80px]">店舗</TableHead>}
-                  {visibleColumns.salesRep && <TableHead className="w-[80px]">担当者</TableHead>}
-                  {visibleColumns.addedDate && <TableHead className="w-[100px]">追加日</TableHead>}
+                  {visibleColumns.store && <SortableHeader column="store" className="w-[80px]">店舗</SortableHeader>}
+                  {visibleColumns.salesRep && <SortableHeader column="salesRep" className="w-[80px]">担当者</SortableHeader>}
+                  {visibleColumns.addedDate && <SortableHeader column="addedDate" className="w-[100px]">追加日</SortableHeader>}
                   {visibleColumns.memo && <TableHead className="w-[180px]">メモ</TableHead>}
                   {visibleColumns.carModel && <TableHead className="w-[100px]">車種</TableHead>}
                   {visibleColumns.vinNumber && <TableHead className="w-[140px]">車台番号</TableHead>}
@@ -584,7 +645,7 @@ export default function CustomersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCustomers.map((customer) => (
+                {sortedCustomers.map((customer) => (
                   <TableRow key={customer.id}>
                     {visibleColumns.contractDate && (
                       <TableCell className="whitespace-nowrap text-xs">{customer.contractDate}</TableCell>
