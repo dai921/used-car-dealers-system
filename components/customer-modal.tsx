@@ -70,6 +70,7 @@ export function CustomerModal({
           followUp2: { checked: false, date: '' },
           documents: { checked: false, date: '' },
           payment: { checked: false, date: '' },
+          delivered: { checked: false, date: '' },
         },
         noFollowUp: false,
       },

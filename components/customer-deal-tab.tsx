@@ -84,7 +84,19 @@ export function CustomerDealTab({
       updatedStatuses[statusKey as keyof typeof updatedStatuses].date = new Date().toISOString().split('T')[0]
     }
 
-    handleDealInfoChange('statuses', updatedStatuses)
+    // 納車済みステータスがチェックされたらdeliveryStatusを「納車済み」に更新
+    if (statusKey === 'delivered' && field === 'checked' && value) {
+      setFormData({
+        ...formData,
+        deliveryStatus: '納車済み',
+        dealInfo: {
+          ...formData.dealInfo,
+          statuses: updatedStatuses,
+        },
+      })
+    } else {
+      handleDealInfoChange('statuses', updatedStatuses)
+    }
   }
 
   const handleSave = () => {
@@ -396,70 +408,197 @@ export function CustomerDealTab({
       {/* Status Management */}
       <Card>
         <CardContent className="pt-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">ステータス管理</h3>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="noFollowUp"
-                checked={formData.dealInfo.noFollowUp}
-                onCheckedChange={(checked) =>
-                  handleDealInfoChange('noFollowUp', checked)
-                }
-              />
-              <Label htmlFor="noFollowUp" className="text-sm font-normal">
-                後追不要
-              </Label>
-            </div>
-          </div>
-
-          <p className="mb-4 text-xs text-muted-foreground">
-            後追いは営業マン管理／通知に使用されます
-          </p>
-
-          <div className="space-y-3">
-            {Object.entries(formData.dealInfo.statuses).map(([key, status]) => {
-              const labels: Record<string, string> = {
-                lineContact: 'LINE 連絡済',
-                contract: '成約',
-                followUp1: '後追1',
-                followUp2: '後追2',
-                documents: '書類',
-                payment: '入金',
-              }
-
-              const isFollowUp = key === 'followUp1' || key === 'followUp2'
-              const disabled = isFollowUp && formData.dealInfo.noFollowUp
-
-              return (
-                <div
-                  key={key}
-                  className={`flex items-center gap-4 rounded-lg border p-3 ${
-                    disabled ? 'opacity-50' : ''
-                  }`}
-                >
+          <div className="grid grid-cols-2 gap-6">
+            {/* 左列: ステータス管理 */}
+            <div>
+              <h3 className="mb-4 text-sm font-semibold">ステータス管理</h3>
+              <div className="space-y-3">
+                {/* 成約済み */}
+                <div className="flex items-center gap-4 rounded-lg border p-3">
                   <div className="flex items-center gap-2 flex-1">
                     <Checkbox
-                      id={key}
-                      checked={status.checked}
+                      id="contract"
+                      checked={formData.dealInfo.statuses.contract.checked}
                       onCheckedChange={(checked) =>
-                        handleStatusChange(key, 'checked', checked)
+                        handleStatusChange('contract', 'checked', checked)
                       }
-                      disabled={disabled}
                     />
-                    <Label htmlFor={key} className="text-sm font-medium">
-                      {labels[key]}
+                    <Label htmlFor="contract" className="text-sm font-medium">
+                      成約済み
                     </Label>
                   </div>
                   <Input
                     type="date"
-                    value={status.date}
-                    onChange={(e) => handleStatusChange(key, 'date', e.target.value)}
-                    disabled={disabled}
+                    value={formData.dealInfo.statuses.contract.date}
+                    onChange={(e) => handleStatusChange('contract', 'date', e.target.value)}
                     className="w-40"
                   />
                 </div>
-              )
-            })}
+
+                {/* 書類済み */}
+                <div className="flex items-center gap-4 rounded-lg border p-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Checkbox
+                      id="documents"
+                      checked={formData.dealInfo.statuses.documents.checked}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange('documents', 'checked', checked)
+                      }
+                    />
+                    <Label htmlFor="documents" className="text-sm font-medium">
+                      書類済み
+                    </Label>
+                  </div>
+                  <Input
+                    type="date"
+                    value={formData.dealInfo.statuses.documents.date}
+                    onChange={(e) => handleStatusChange('documents', 'date', e.target.value)}
+                    className="w-40"
+                  />
+                </div>
+
+                {/* 入金済み */}
+                <div className="flex items-center gap-4 rounded-lg border p-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Checkbox
+                      id="payment"
+                      checked={formData.dealInfo.statuses.payment.checked}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange('payment', 'checked', checked)
+                      }
+                    />
+                    <Label htmlFor="payment" className="text-sm font-medium">
+                      入金済み
+                    </Label>
+                  </div>
+                  <Input
+                    type="date"
+                    value={formData.dealInfo.statuses.payment.date}
+                    onChange={(e) => handleStatusChange('payment', 'date', e.target.value)}
+                    className="w-40"
+                  />
+                </div>
+
+                {/* 納車済み */}
+                <div className="flex items-center gap-4 rounded-lg border p-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Checkbox
+                      id="delivered"
+                      checked={formData.dealInfo.statuses.delivered.checked}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange('delivered', 'checked', checked)
+                      }
+                    />
+                    <Label htmlFor="delivered" className="text-sm font-medium">
+                      納車済み
+                    </Label>
+                  </div>
+                  <Input
+                    type="date"
+                    value={formData.dealInfo.statuses.delivered.date}
+                    onChange={(e) => handleStatusChange('delivered', 'date', e.target.value)}
+                    className="w-40"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 右列: 営業管理 */}
+            <div>
+              <h3 className="mb-4 text-sm font-semibold">営業管理</h3>
+              <div className="space-y-3">
+                {/* LINE連絡済み */}
+                <div className="flex items-center gap-4 rounded-lg border p-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Checkbox
+                      id="lineContact"
+                      checked={formData.dealInfo.statuses.lineContact.checked}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange('lineContact', 'checked', checked)
+                      }
+                    />
+                    <Label htmlFor="lineContact" className="text-sm font-medium">
+                      LINE連絡済み
+                    </Label>
+                  </div>
+                  <Input
+                    type="date"
+                    value={formData.dealInfo.statuses.lineContact.date}
+                    onChange={(e) => handleStatusChange('lineContact', 'date', e.target.value)}
+                    className="w-40"
+                  />
+                </div>
+
+                {/* 後追1 */}
+                <div className={`flex items-center gap-4 rounded-lg border p-3 ${
+                  formData.dealInfo.noFollowUp ? 'opacity-50' : ''
+                }`}>
+                  <div className="flex items-center gap-2 flex-1">
+                    <Checkbox
+                      id="followUp1"
+                      checked={formData.dealInfo.statuses.followUp1.checked}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange('followUp1', 'checked', checked)
+                      }
+                      disabled={formData.dealInfo.noFollowUp}
+                    />
+                    <Label htmlFor="followUp1" className="text-sm font-medium">
+                      後追1
+                    </Label>
+                  </div>
+                  <Input
+                    type="date"
+                    value={formData.dealInfo.statuses.followUp1.date}
+                    onChange={(e) => handleStatusChange('followUp1', 'date', e.target.value)}
+                    disabled={formData.dealInfo.noFollowUp}
+                    className="w-40"
+                  />
+                </div>
+
+                {/* 後追2 */}
+                <div className={`flex items-center gap-4 rounded-lg border p-3 ${
+                  formData.dealInfo.noFollowUp ? 'opacity-50' : ''
+                }`}>
+                  <div className="flex items-center gap-2 flex-1">
+                    <Checkbox
+                      id="followUp2"
+                      checked={formData.dealInfo.statuses.followUp2.checked}
+                      onCheckedChange={(checked) =>
+                        handleStatusChange('followUp2', 'checked', checked)
+                      }
+                      disabled={formData.dealInfo.noFollowUp}
+                    />
+                    <Label htmlFor="followUp2" className="text-sm font-medium">
+                      後追2
+                    </Label>
+                  </div>
+                  <Input
+                    type="date"
+                    value={formData.dealInfo.statuses.followUp2.date}
+                    onChange={(e) => handleStatusChange('followUp2', 'date', e.target.value)}
+                    disabled={formData.dealInfo.noFollowUp}
+                    className="w-40"
+                  />
+                </div>
+
+                {/* 後追不要 */}
+                <div className="flex items-center gap-2 rounded-lg border p-3">
+                  <Checkbox
+                    id="noFollowUp"
+                    checked={formData.dealInfo.noFollowUp}
+                    onCheckedChange={(checked) =>
+                      handleDealInfoChange('noFollowUp', checked)
+                    }
+                  />
+                  <Label htmlFor="noFollowUp" className="text-sm font-medium">
+                    後追不要
+                  </Label>
+                </div>
+              </div>
+              <p className="mt-4 text-xs text-muted-foreground">
+                後追いは営業マン管理／通知に使用されます
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
