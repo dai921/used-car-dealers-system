@@ -9,6 +9,13 @@ export interface DealStatus {
   date: string
 }
 
+export interface OptionItem {
+  id: string
+  category: string
+  optionName: string
+  amount: number
+}
+
 export interface DealInfo {
   vinNumber: string
   carModel: string
@@ -19,8 +26,9 @@ export interface DealInfo {
   mileage: string
   modelType: string
   salesPrice: number
-  auctionHouse: string
-  shippingFee: string
+  discount: number
+  carType: string
+  options: OptionItem[]
   dealMemos: DealMemo[]
   statuses: {
     lineContact: DealStatus
@@ -90,8 +98,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '45000',
       modelType: 'ZVW30',
       salesPrice: 1380000,
-      auctionHouse: 'オークション会場A',
-      shippingFee: '¥30,000',
+      discount: 0,
+      carType: '新車',
+      options: [],
       dealMemos: [
         { id: '1', date: '2025-01-10', content: '来店ヒアリング' },
         { id: '2', date: '2025-01-12', content: '見積提示、家族と要相談とのこと' },
@@ -139,8 +148,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '28000',
       modelType: 'NHP10',
       salesPrice: 980000,
-      auctionHouse: 'オークション会場B',
-      shippingFee: '¥25,000',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '3', date: '2025-01-05', content: '電話問い合わせ' },
         { id: '4', date: '2025-01-08', content: '来店、即決' },
@@ -188,8 +198,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '5', date: '2025-01-12', content: 'オンライン商談' },
       ],
@@ -236,8 +247,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: 'オークション会場C',
-      shippingFee: '¥35,000',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [],
       statuses: {
         lineContact: { checked: true, date: '2025-01-08' },
@@ -282,8 +294,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '新車',
+      options: [],
       dealMemos: [
         { id: '6', date: '2025-01-14', content: '初回相談、複数車種検討中' },
       ],
@@ -330,8 +343,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '35000',
       modelType: 'ZRR80',
       salesPrice: 2180000,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '7', date: '2025-01-16', content: 'ファミリーカー希望' },
       ],
@@ -378,8 +392,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '8', date: '2025-01-18', content: 'ハイブリッド車希望' },
       ],
@@ -426,8 +441,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '48000',
       modelType: 'JF3',
       salesPrice: 780000,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '9', date: '2025-01-19', content: '軽自動車で低予算' },
       ],
@@ -474,8 +490,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '新車',
+      options: [],
       dealMemos: [
         { id: '10', date: '2025-01-20', content: 'SUV希望' },
       ],
@@ -522,8 +539,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '15000',
       modelType: 'MXUA80',
       salesPrice: 2680000,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '11', date: '2025-01-17', content: '社用車として購入' },
       ],
@@ -570,8 +588,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '32000',
       modelType: 'GR3',
       salesPrice: 1180000,
-      auctionHouse: 'オークション会場B',
-      shippingFee: '¥25,000',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '12', date: '2025-01-15', content: '下取り見積もり依頼' },
       ],
@@ -618,8 +637,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '13', date: '2025-01-21', content: '白または銀色希望' },
       ],
@@ -666,8 +686,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '25000',
       modelType: 'E13',
       salesPrice: 1680000,
-      auctionHouse: 'オークション会場A',
-      shippingFee: '¥30,000',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '14', date: '2025-01-13', content: '友人からの紹介' },
       ],
@@ -714,8 +735,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '新車',
+      options: [],
       dealMemos: [
         { id: '15', date: '2025-01-22', content: 'コンパクトカー希望' },
       ],
@@ -762,8 +784,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '18000',
       modelType: 'MXPA10',
       salesPrice: 1480000,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '16', date: '2025-01-16', content: 'Zoom商談実施' },
       ],
@@ -810,8 +833,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '58000',
       modelType: 'NRE210',
       salesPrice: 880000,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '17', date: '2025-01-14', content: '商用車として利用予定' },
       ],
@@ -858,8 +882,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '18', date: '2025-01-23', content: '可愛いデザイン希望' },
       ],
@@ -906,8 +931,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '22000',
       modelType: 'AGH30W',
       salesPrice: 3280000,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '新車',
+      options: [],
       dealMemos: [
         { id: '19', date: '2025-01-11', content: 'リピーター、高級志向' },
       ],
@@ -954,8 +980,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '',
       modelType: '',
       salesPrice: 0,
-      auctionHouse: '',
-      shippingFee: '',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '20', date: '2025-01-24', content: '予算は100万円以下' },
       ],
@@ -1002,8 +1029,9 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       mileage: '45000',
       modelType: 'ZVW30',
       salesPrice: 1380000,
-      auctionHouse: 'オークション会場A',
-      shippingFee: '¥30,000',
+      discount: 0,
+      carType: '中古車',
+      options: [],
       dealMemos: [
         { id: '21', date: '2025-01-12', content: '燃費重視' },
       ],

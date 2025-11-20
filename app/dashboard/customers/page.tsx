@@ -105,8 +105,30 @@ export default function CustomersPage() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
-        setCustomers(parsed)
-        setFilteredCustomers(parsed)
+        // 既存データに新しいフィールドのデフォルト値をマージ
+        const migratedData = parsed.map((customer: Customer) => ({
+          ...customer,
+          dealInfo: {
+            ...customer.dealInfo,
+            color: customer.dealInfo.color || '',
+            grade: customer.dealInfo.grade || '',
+            year: customer.dealInfo.year || '',
+            mileage: customer.dealInfo.mileage || '',
+            modelType: customer.dealInfo.modelType || '',
+            salesPrice: customer.dealInfo.salesPrice || 0,
+            discount: customer.dealInfo.discount || 0,
+            carType: customer.dealInfo.carType || '',
+            options: customer.dealInfo.options || [],
+            statuses: {
+              ...customer.dealInfo.statuses,
+              delivered: customer.dealInfo.statuses.delivered || { checked: false, date: '' },
+            },
+          },
+        }))
+        setCustomers(migratedData)
+        setFilteredCustomers(migratedData)
+        // マイグレーション後のデータを保存
+        localStorage.setItem('customers', JSON.stringify(migratedData))
       } catch (e) {
         setCustomers(DUMMY_CUSTOMERS)
         setFilteredCustomers(DUMMY_CUSTOMERS)

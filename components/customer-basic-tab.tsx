@@ -14,9 +14,7 @@ import { Customer } from '@/lib/dummy-data'
 import { useToast } from '@/hooks/use-toast'
 
 const SALES_REPS = ['高橋', '鈴木', '佐藤', '田中']
-const STORES = ['本店', '支店A', '支店B']
-const DELIVERY_STATUSES = ['納車済み', '納車待ち', '商談中']
-const CAR_TYPES = ['新車', '中古車']  
+const STORES = ['本店', '支店A', '支店B']  
 
 interface CustomerBasicTabProps {
   formData: Customer
@@ -227,44 +225,6 @@ export function CustomerBasicTab({
         </div>
 
         <div className="grid gap-4 md:grid-cols-3 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="deliveryStatus">納車状況</Label>
-            <Select
-              value={formData.deliveryStatus}
-              onValueChange={(value) => handleChange('deliveryStatus', value)}
-            >
-              <SelectTrigger id="deliveryStatus">
-                <SelectValue placeholder="納車状況を選択" />
-              </SelectTrigger>
-              <SelectContent>
-                {DELIVERY_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="carType">車種区分</Label>
-            <Select
-              value={formData.carType}
-              onValueChange={(value) => handleChange('carType', value)}
-            >
-              <SelectTrigger id="carType">
-                <SelectValue placeholder="車種区分を選択" />
-              </SelectTrigger>
-              <SelectContent>
-                {CAR_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="contractDate">契約日</Label>
             <Input

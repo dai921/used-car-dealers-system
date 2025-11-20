@@ -60,8 +60,9 @@ export function CustomerModal({
         mileage: '',
         modelType: '',
         salesPrice: 0,
-        auctionHouse: '',
-        shippingFee: '',
+        discount: 0,
+        carType: '',
+        options: [],
         dealMemos: [],
         statuses: {
           lineContact: { checked: false, date: '' },
@@ -79,7 +80,26 @@ export function CustomerModal({
 
   useEffect(() => {
     if (customer) {
-      setFormData(customer)
+      // 既存データに新しいフィールドのデフォルト値をマージ
+      setFormData({
+        ...customer,
+        dealInfo: {
+          ...customer.dealInfo,
+          color: customer.dealInfo.color || '',
+          grade: customer.dealInfo.grade || '',
+          year: customer.dealInfo.year || '',
+          mileage: customer.dealInfo.mileage || '',
+          modelType: customer.dealInfo.modelType || '',
+          salesPrice: customer.dealInfo.salesPrice || 0,
+          discount: customer.dealInfo.discount || 0,
+          carType: customer.dealInfo.carType || '',
+          options: customer.dealInfo.options || [],
+          statuses: {
+            ...customer.dealInfo.statuses,
+            delivered: customer.dealInfo.statuses.delivered || { checked: false, date: '' },
+          },
+        },
+      })
     }
   }, [customer])
 

@@ -14,18 +14,21 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent } from '@/components/ui/card'
-import { Customer, DealMemo, InventoryItem } from '@/lib/dummy-data'
+import { Customer, DealMemo, InventoryItem, OptionItem } from '@/lib/dummy-data'
 import { useToast } from '@/hooks/use-toast'
-import { Plus, FileText, Package } from 'lucide-react'
+import { Plus, FileText, Package, X } from 'lucide-react'
 import { InventorySelectorDialog } from './inventory-selector-dialog'
 import { getInventoryByVin } from '@/lib/inventory-utils'
 
-const AUCTION_HOUSES = ['オークション会場A', 'オークション会場B', 'オークション会場C']
-const SHIPPING_FEES = {
-  'オークション会場A': '¥30,000',
-  'オークション会場B': '¥25,000',
-  'オークション会場C': '¥35,000',
-}
+const OPTION_CATEGORIES = [
+  'タイヤ',
+  'ナビ',
+  'ライト',
+  'オーディオ',
+  'セキュリティ',
+  'エアロ',
+  'その他'
+]
 
 interface CustomerDealTabProps {
   formData: Customer
@@ -52,11 +55,6 @@ export function CustomerDealTab({
     })
   }
 
-  const handleAuctionHouseChange = (value: string) => {
-    handleDealInfoChange('auctionHouse', value)
-    handleDealInfoChange('shippingFee', SHIPPING_FEES[value as keyof typeof SHIPPING_FEES] || '')
-  }
-
   const handleAddMemo = () => {
     if (!memoText.trim()) return
 
@@ -71,10 +69,11 @@ export function CustomerDealTab({
   }
 
   const handleStatusChange = (statusKey: string, field: 'checked' | 'date', value: any) => {
+    const currentStatus = formData.dealInfo.statuses[statusKey as keyof typeof formData.dealInfo.statuses] || { checked: false, date: '' }
     const updatedStatuses = {
       ...formData.dealInfo.statuses,
       [statusKey]: {
-        ...formData.dealInfo.statuses[statusKey as keyof typeof formData.dealInfo.statuses],
+        ...currentStatus,
         [field]: value,
       },
     }
@@ -99,6 +98,42 @@ export function CustomerDealTab({
     }
   }
 
+  // オプション追加
+  const handleAddOption = () => {
+    const newOption: OptionItem = {
+      id: Date.now().toString(),
+      category: '',
+      optionName: '',
+      amount: 0,
+    }
+    handleDealInfoChange('options', [...(formData.dealInfo.options || []), newOption])
+  }
+
+  // オプション変更
+  const handleOptionChange = (id: string, field: keyof OptionItem, value: any) => {
+    // プレースホルダーの場合は新しいオプションを追加
+    if (id.startsWith('placeholder-')) {
+      const newOption: OptionItem = {
+        id: Date.now().toString(),
+        category: field === 'category' ? value : '',
+        optionName: field === 'optionName' ? value : '',
+        amount: field === 'amount' ? value : 0,
+      }
+      handleDealInfoChange('options', [...(formData.dealInfo.options || []), newOption])
+    } else {
+      const updatedOptions = (formData.dealInfo.options || []).map((option) =>
+        option.id === id ? { ...option, [field]: value } : option
+      )
+      handleDealInfoChange('options', updatedOptions)
+    }
+  }
+
+  // オプション削除
+  const handleRemoveOption = (id: string) => {
+    const updatedOptions = (formData.dealInfo.options || []).filter((option) => option.id !== id)
+    handleDealInfoChange('options', updatedOptions)
+  }
+
   const handleSave = () => {
     toast({
       title: '保存完了',
@@ -121,12 +156,14 @@ export function CustomerDealTab({
     handleDealInfoChange('mileage', item.vehicleInfo.mileage)
     handleDealInfoChange('modelType', item.vehicleInfo.modelType)
     handleDealInfoChange('salesPrice', item.salesInfo.salesPrice)
+    handleDealInfoChange('carType', item.purchaseInfo.category)
     
-    // 顧客データの車台番号と車種も更新
+    // 顧客データの車台番号と車種、車種区分も更新
     setFormData({
       ...formData,
       vinNumber: item.vehicleInfo.vinNumber,
       carModel: item.vehicleInfo.carModel,
+      carType: item.purchaseInfo.category,
       dealInfo: {
         ...formData.dealInfo,
         vinNumber: item.vehicleInfo.vinNumber,
@@ -138,6 +175,7 @@ export function CustomerDealTab({
         mileage: item.vehicleInfo.mileage,
         modelType: item.vehicleInfo.modelType,
         salesPrice: item.salesInfo.salesPrice,
+        carType: item.purchaseInfo.category,
       },
     })
     
@@ -173,12 +211,14 @@ export function CustomerDealTab({
         handleDealInfoChange('mileage', inventory.vehicleInfo.mileage)
         handleDealInfoChange('modelType', inventory.vehicleInfo.modelType)
         handleDealInfoChange('salesPrice', inventory.salesInfo.salesPrice)
+        handleDealInfoChange('carType', inventory.purchaseInfo.category)
         
-        // 顧客データの車種も更新
+        // 顧客データの車種と車種区分も更新
         setFormData({
           ...formData,
           vinNumber: vinNumber,
           carModel: inventory.vehicleInfo.carModel,
+          carType: inventory.purchaseInfo.category,
           dealInfo: {
             ...formData.dealInfo,
             vinNumber: vinNumber,
@@ -190,6 +230,7 @@ export function CustomerDealTab({
             mileage: inventory.vehicleInfo.mileage,
             modelType: inventory.vehicleInfo.modelType,
             salesPrice: inventory.salesInfo.salesPrice,
+            carType: inventory.purchaseInfo.category,
           },
         })
         
@@ -225,7 +266,11 @@ export function CustomerDealTab({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 左列: 車両詳細 */}
+            <div>
+              <h4 className="text-sm font-semibold mb-4">車両詳細</h4>
+              <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="vinNumber">車台番号</Label>
               <Input
@@ -261,10 +306,20 @@ export function CustomerDealTab({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="carType">車種区分（在庫から自動取得）</Label>
+              <Input
+                id="carType"
+                value={formData.dealInfo.carType || '未設定'}
+                onChange={(e) => handleDealInfoChange('carType', e.target.value)}
+                placeholder="新車 / 中古車"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="color">色</Label>
               <Input
                 id="color"
-                value={formData.dealInfo.color}
+                value={formData.dealInfo.color || ''}
                 onChange={(e) => handleDealInfoChange('color', e.target.value)}
                 placeholder="白"
               />
@@ -274,7 +329,7 @@ export function CustomerDealTab({
               <Label htmlFor="grade">グレード</Label>
               <Input
                 id="grade"
-                value={formData.dealInfo.grade}
+                value={formData.dealInfo.grade || ''}
                 onChange={(e) => handleDealInfoChange('grade', e.target.value)}
                 placeholder="S"
               />
@@ -284,7 +339,7 @@ export function CustomerDealTab({
               <Label htmlFor="year">年式</Label>
               <Input
                 id="year"
-                value={formData.dealInfo.year}
+                value={formData.dealInfo.year || ''}
                 onChange={(e) => handleDealInfoChange('year', e.target.value)}
                 placeholder="2018"
                 maxLength={4}
@@ -296,7 +351,7 @@ export function CustomerDealTab({
               <div className="relative">
                 <Input
                   id="mileage"
-                  value={formData.dealInfo.mileage}
+                  value={formData.dealInfo.mileage || ''}
                   onChange={(e) => handleDealInfoChange('mileage', e.target.value)}
                   placeholder="45000"
                   className="pr-10"
@@ -311,7 +366,7 @@ export function CustomerDealTab({
               <Label htmlFor="modelType">型式</Label>
               <Input
                 id="modelType"
-                value={formData.dealInfo.modelType}
+                value={formData.dealInfo.modelType || ''}
                 onChange={(e) => handleDealInfoChange('modelType', e.target.value)}
                 placeholder="ZVW30"
               />
@@ -335,34 +390,131 @@ export function CustomerDealTab({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="auctionHouse">オークション会場</Label>
-              <Select
-                value={formData.dealInfo.auctionHouse}
-                onValueChange={handleAuctionHouseChange}
-              >
-                <SelectTrigger id="auctionHouse">
-                  <SelectValue placeholder="会場を選択" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AUCTION_HOUSES.map((house) => (
-                    <SelectItem key={house} value={house}>
-                      {house}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="shippingFee">送料（自動）</Label>
-              <Input
-                id="shippingFee"
-                value={formData.dealInfo.shippingFee}
-                disabled
-                className="bg-muted"
-              />
+              <Label htmlFor="discount">値引き</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  ¥
+                </span>
+                <Input
+                  id="discount"
+                  type="number"
+                  value={formData.dealInfo.discount || ''}
+                  onChange={(e) => handleDealInfoChange('discount', parseInt(e.target.value) || 0)}
+                  placeholder="0"
+                  className="pl-8"
+                />
+              </div>
             </div>
           </div>
+
+          {/* 総額表示 */}
+          <div className="mt-6 pt-4 border-t">
+            <div className="flex justify-between items-center">
+              <Label className="text-base font-semibold">総額</Label>
+              <div className="text-2xl font-bold text-primary">
+                ¥{(() => {
+                  const salesPrice = formData.dealInfo.salesPrice || 0
+                  const discount = formData.dealInfo.discount || 0
+                  const optionsTotal = (formData.dealInfo.options || []).reduce((sum, opt) => sum + (opt.amount || 0), 0)
+                  const total = salesPrice + optionsTotal - discount
+                  return total.toLocaleString()
+                })()}
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-muted-foreground space-y-1">
+              <div className="flex justify-between">
+                <span>販売価格:</span>
+                <span>¥{(formData.dealInfo.salesPrice || 0).toLocaleString()}</span>
+              </div>
+              {(formData.dealInfo.options || []).length > 0 && (
+                <div className="flex justify-between">
+                  <span>オプション合計:</span>
+                  <span>¥{(formData.dealInfo.options || []).reduce((sum, opt) => sum + (opt.amount || 0), 0).toLocaleString()}</span>
+                </div>
+              )}
+              {(formData.dealInfo.discount || 0) > 0 && (
+                <div className="flex justify-between text-red-600">
+                  <span>値引き:</span>
+                  <span>-¥{(formData.dealInfo.discount || 0).toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 右列: オプション */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-semibold">オプション</h4>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1"
+              onClick={handleAddOption}
+            >
+              <Plus className="h-3 w-3" />
+              追加
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {((formData.dealInfo.options || []).length === 0 ? Array(3).fill(null) : (formData.dealInfo.options || [])).map((option, index) => {
+              const isPlaceholder = !option
+              const optionData = isPlaceholder ? { id: `placeholder-${index}`, category: '', optionName: '', amount: 0 } : option
+              
+              return (
+                <div key={optionData.id} className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-3">
+                    <Select
+                      value={optionData.category}
+                      onValueChange={(value) => handleOptionChange(optionData.id, 'category', value)}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder="カテゴリ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OPTION_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat} value={cat} className="text-xs">
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-5">
+                    <Input
+                      value={optionData.optionName}
+                      onChange={(e) => handleOptionChange(optionData.id, 'optionName', e.target.value)}
+                      placeholder="オプション名"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="col-span-3">
+                    <Input
+                      type="number"
+                      value={optionData.amount || ''}
+                      onChange={(e) => handleOptionChange(optionData.id, 'amount', parseInt(e.target.value) || 0)}
+                      placeholder="金額"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    {!isPlaceholder && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleRemoveOption(optionData.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
         </CardContent>
       </Card>
 
@@ -484,7 +636,7 @@ export function CustomerDealTab({
                   <div className="flex items-center gap-2 flex-1">
                     <Checkbox
                       id="delivered"
-                      checked={formData.dealInfo.statuses.delivered.checked}
+                      checked={formData.dealInfo.statuses.delivered?.checked || false}
                       onCheckedChange={(checked) =>
                         handleStatusChange('delivered', 'checked', checked)
                       }
@@ -495,7 +647,7 @@ export function CustomerDealTab({
                   </div>
                   <Input
                     type="date"
-                    value={formData.dealInfo.statuses.delivered.date}
+                    value={formData.dealInfo.statuses.delivered?.date || ''}
                     onChange={(e) => handleStatusChange('delivered', 'date', e.target.value)}
                     className="w-40"
                   />
