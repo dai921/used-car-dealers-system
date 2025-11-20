@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -20,12 +20,14 @@ import {
   calculateWeeklyKPIs,
   calculateDailyKPIs,
 } from '@/lib/sales-data-utils'
-import { SALES_CUSTOMERS, SALES_REPS } from '@/lib/sales-dummy-data'
+import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
+import { SALES_REPS } from '@/lib/sales-dummy-data'
 import { ArrowLeft, TrendingUp } from 'lucide-react'
 
 type PeriodUnit = 'day' | 'week' | 'month'
 
 export default function SalesDashboardDetailPage() {
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedSalesRep, setSelectedSalesRep] = useState<string>('')
   const [selectedKPIs, setSelectedKPIs] = useState<string[]>([
     'dealCount',
@@ -34,29 +36,43 @@ export default function SalesDashboardDetailPage() {
   ])
   const [periodUnit, setPeriodUnit] = useState<PeriodUnit>('month')
 
+  // localStorageから顧客データを読み込み（顧客管理と連携）
+  useEffect(() => {
+    const stored = localStorage.getItem('customers')
+    if (stored) {
+      try {
+        setCustomers(JSON.parse(stored))
+      } catch (e) {
+        setCustomers(DUMMY_CUSTOMERS)
+      }
+    } else {
+      setCustomers(DUMMY_CUSTOMERS)
+    }
+  }, [])
+
   // 個人別分析用のデータ
   const individualData = useMemo(() => {
     if (!selectedSalesRep) return []
     
     if (periodUnit === 'month') {
-      return calculateMonthlyKPIs(SALES_CUSTOMERS, selectedSalesRep)
+      return calculateMonthlyKPIs(customers, selectedSalesRep)
     } else if (periodUnit === 'week') {
-      return calculateWeeklyKPIs(SALES_CUSTOMERS, selectedSalesRep)
+      return calculateWeeklyKPIs(customers, selectedSalesRep)
     } else {
-      return calculateDailyKPIs(SALES_CUSTOMERS, selectedSalesRep)
+      return calculateDailyKPIs(customers, selectedSalesRep)
     }
-  }, [selectedSalesRep, periodUnit])
+  }, [customers, selectedSalesRep, periodUnit])
 
   // 期間別分析用のデータ（全社）
   const periodData = useMemo(() => {
     if (periodUnit === 'month') {
-      return calculateMonthlyKPIs(SALES_CUSTOMERS)
+      return calculateMonthlyKPIs(customers)
     } else if (periodUnit === 'week') {
-      return calculateWeeklyKPIs(SALES_CUSTOMERS)
+      return calculateWeeklyKPIs(customers)
     } else {
-      return calculateDailyKPIs(SALES_CUSTOMERS)
+      return calculateDailyKPIs(customers)
     }
-  }, [periodUnit])
+  }, [customers, periodUnit])
 
   return (
     <div className="space-y-6">

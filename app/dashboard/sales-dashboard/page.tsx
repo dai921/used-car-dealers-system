@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { PeriodFilter } from '@/components/sales/period-filter'
@@ -14,15 +14,31 @@ import {
   calculateCompanyKPIs,
   calculateAllSalesRepsKPIs,
 } from '@/lib/sales-data-utils'
-import { SALES_CUSTOMERS, COMPANY_TARGET } from '@/lib/sales-dummy-data'
+import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
+import { COMPANY_TARGET } from '@/lib/sales-dummy-data'
 import { ArrowRight, BarChart3 } from 'lucide-react'
 
 export default function SalesDashboardPage() {
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [periodType, setPeriodType] = useState<PeriodType>('thisMonth')
   const [customRange, setCustomRange] = useState<DateRange>({
     start: '2025-01-01',
     end: '2025-02-28',
   })
+
+  // localStorageから顧客データを読み込み（顧客管理と連携）
+  useEffect(() => {
+    const stored = localStorage.getItem('customers')
+    if (stored) {
+      try {
+        setCustomers(JSON.parse(stored))
+      } catch (e) {
+        setCustomers(DUMMY_CUSTOMERS)
+      }
+    } else {
+      setCustomers(DUMMY_CUSTOMERS)
+    }
+  }, [])
 
   const handlePeriodChange = (type: PeriodType, range?: DateRange) => {
     setPeriodType(type)
@@ -33,8 +49,8 @@ export default function SalesDashboardPage() {
 
   // 期間でフィルタリング
   const filteredCustomers = useMemo(() => {
-    return filterByPeriod(SALES_CUSTOMERS, periodType, customRange)
-  }, [periodType, customRange])
+    return filterByPeriod(customers, periodType, customRange)
+  }, [customers, periodType, customRange])
 
   // 全社KPIを計算
   const companyKPI = useMemo(() => {
