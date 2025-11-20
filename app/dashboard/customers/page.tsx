@@ -29,7 +29,7 @@ import {
 import { Plus, Search, RotateCcw, Settings2, Edit, ArrowUpDown, ArrowUp, ArrowDown, Check, ChevronsUpDown } from 'lucide-react'
 import { CustomerModal } from '@/components/customer-modal'
 import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
-import { updateInventoryFromCustomer, releaseInventory } from '@/lib/inventory-utils'
+import { updateInventoryFromCustomer, releaseInventory, getInventoryFromStorage } from '@/lib/inventory-utils'
 import {
   Command,
   CommandEmpty,
@@ -105,10 +105,12 @@ export default function CustomersPage() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored)
-        // 既存データに新しいフィールドのデフォルト値をマージ
-        const migratedData = parsed.map((customer: Customer) => ({
-          ...customer,
-          dealInfo: {
+        // 在庫データを取得
+        const inventoryData = getInventoryFromStorage()
+        
+        // 既存データに新しいフィールドのデフォルト値をマージ + 在庫との連携
+        const migratedData = parsed.map((customer: Customer) => {
+          let dealInfo = {
             ...customer.dealInfo,
             color: customer.dealInfo.color || '',
             grade: customer.dealInfo.grade || '',
@@ -123,8 +125,34 @@ export default function CustomersPage() {
               ...customer.dealInfo.statuses,
               delivered: customer.dealInfo.statuses.delivered || { checked: false, date: '' },
             },
-          },
-        }))
+          }
+          
+          // VIN番号がある場合、在庫から車両情報を取得して補完
+          if (dealInfo.vinNumber && dealInfo.vinNumber.trim() !== '') {
+            const matchedInventory = inventoryData.find(
+              inv => inv.vehicleInfo.vinNumber === dealInfo.vinNumber
+            )
+            if (matchedInventory) {
+              dealInfo = {
+                ...dealInfo,
+                carModel: dealInfo.carModel || matchedInventory.vehicleInfo.carModel,
+                maker: dealInfo.maker || matchedInventory.vehicleInfo.maker,
+                color: dealInfo.color || matchedInventory.vehicleInfo.color,
+                grade: dealInfo.grade || matchedInventory.vehicleInfo.grade,
+                year: dealInfo.year || matchedInventory.vehicleInfo.year,
+                mileage: dealInfo.mileage || matchedInventory.vehicleInfo.mileage,
+                modelType: dealInfo.modelType || matchedInventory.vehicleInfo.modelType,
+                salesPrice: dealInfo.salesPrice || matchedInventory.salesInfo.salesPrice,
+                // 注: 車種区分は在庫データに存在しないため、手動入力が必要
+              }
+            }
+          }
+          
+          return {
+            ...customer,
+            dealInfo,
+          }
+        })
         setCustomers(migratedData)
         setFilteredCustomers(migratedData)
         // マイグレーション後のデータを保存

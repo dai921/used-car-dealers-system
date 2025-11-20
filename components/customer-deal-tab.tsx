@@ -156,14 +156,13 @@ export function CustomerDealTab({
     handleDealInfoChange('mileage', item.vehicleInfo.mileage)
     handleDealInfoChange('modelType', item.vehicleInfo.modelType)
     handleDealInfoChange('salesPrice', item.salesInfo.salesPrice)
-    handleDealInfoChange('carType', item.purchaseInfo.category)
+    // 注: 車種区分は在庫データに存在しないため、手動入力が必要
     
-    // 顧客データの車台番号と車種、車種区分も更新
+    // 顧客データの車台番号と車種も更新
     setFormData({
       ...formData,
       vinNumber: item.vehicleInfo.vinNumber,
       carModel: item.vehicleInfo.carModel,
-      carType: item.purchaseInfo.category,
       dealInfo: {
         ...formData.dealInfo,
         vinNumber: item.vehicleInfo.vinNumber,
@@ -175,7 +174,6 @@ export function CustomerDealTab({
         mileage: item.vehicleInfo.mileage,
         modelType: item.vehicleInfo.modelType,
         salesPrice: item.salesInfo.salesPrice,
-        carType: item.purchaseInfo.category,
       },
     })
     
@@ -211,14 +209,12 @@ export function CustomerDealTab({
         handleDealInfoChange('mileage', inventory.vehicleInfo.mileage)
         handleDealInfoChange('modelType', inventory.vehicleInfo.modelType)
         handleDealInfoChange('salesPrice', inventory.salesInfo.salesPrice)
-        handleDealInfoChange('carType', inventory.purchaseInfo.category)
         
-        // 顧客データの車種と車種区分も更新
+        // 顧客データの車種も更新
         setFormData({
           ...formData,
           vinNumber: vinNumber,
           carModel: inventory.vehicleInfo.carModel,
-          carType: inventory.purchaseInfo.category,
           dealInfo: {
             ...formData.dealInfo,
             vinNumber: vinNumber,
@@ -230,7 +226,6 @@ export function CustomerDealTab({
             mileage: inventory.vehicleInfo.mileage,
             modelType: inventory.vehicleInfo.modelType,
             salesPrice: inventory.salesInfo.salesPrice,
-            carType: inventory.purchaseInfo.category,
           },
         })
         
@@ -540,8 +535,8 @@ export function CustomerDealTab({
             {formData.dealInfo.dealMemos.length > 0 && (
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {formData.dealInfo.dealMemos.map((memo) => (
-                  <Card key={memo.id}>
-                    <CardContent className="pt-4">
+                  <Card key={memo.id} className="py-3">
+                    <CardContent className="py-0">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1 flex-1">
                           <p className="text-xs text-muted-foreground">{memo.date}</p>
