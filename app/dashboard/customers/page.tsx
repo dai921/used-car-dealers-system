@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,15 +26,28 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Plus, Search, RotateCcw, Settings2, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Plus, Search, RotateCcw, Settings2, Edit, ArrowUpDown, ArrowUp, ArrowDown, Check, ChevronsUpDown } from 'lucide-react'
 import { CustomerModal } from '@/components/customer-modal'
 import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
 import { updateInventoryFromCustomer, releaseInventory } from '@/lib/inventory-utils'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 const STORES = ['本店', '支店A', '支店B']
 const SALES_REPS = ['高橋', '鈴木', '佐藤', '田中']
 const DELIVERY_STATUSES = ['納車済み', '納車待ち', '商談中']
-const CAR_MODELS = ['プリウス', 'アクア', 'ヴォクシー', 'アルファード', 'N-BOX', 'フィット']
 const CAR_TYPES = ['新車', '中古車']
 
 
@@ -43,6 +56,17 @@ export default function CustomersPage() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  // 動的な車種リストを生成
+  const availableCarModels = React.useMemo(() => {
+    const models = customers
+      .map(c => c.carModel)
+      .filter(model => model && model.trim() !== '')
+    return Array.from(new Set(models)).sort()
+  }, [customers])
+  
+  // Combobox用のopenステート
+  const [carModelOpen, setCarModelOpen] = useState(false)
   
   // Filter states
   const [salesRep, setSalesRep] = useState('')
@@ -249,6 +273,8 @@ export default function CustomersPage() {
       filtered = filtered.filter(c => c.contractDate <= contractDateTo)
     }
 
+    
+
     setFilteredCustomers(filtered)
   }
 
@@ -454,20 +480,76 @@ export default function CustomersPage() {
               </Select>
             </div>
 
-            {/* 車種 */}
-            <div className="space-y-0.5 min-w-[120px]">
+            {/* 車種（検索式Combobox） */}
+            <div className="space-y-0.5 min-w-[180px]">
               <Label className="text-xs">車種</Label>
-              <Select value={carModel} onValueChange={setCarModel}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="全て" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全て</SelectItem>
-                  {CAR_MODELS.map(model => (
-                    <SelectItem key={model} value={model}>{model}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={carModelOpen} onOpenChange={setCarModelOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={carModelOpen}
+                    className="w-full h-8 justify-between text-xs font-normal"
+                  >
+                    <span className="truncate">
+                      {carModel && carModel !== 'all' && carModel !== ''
+                        ? carModel
+                        : '全て'}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="車種を検索..." 
+                      className="h-8 text-xs border-0" 
+                    />
+                    <CommandList>
+                      <CommandEmpty className="py-3 text-xs">
+                        車種が見つかりません
+                      </CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setCarModel('all')
+                            setCarModelOpen(false)
+                          }}
+                          className="text-xs"
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-3 w-3',
+                              (carModel === 'all' || carModel === '') ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          全て
+                        </CommandItem>
+                        {availableCarModels.map((model) => (
+                          <CommandItem
+                            key={model}
+                            value={model}
+                            onSelect={(currentValue) => {
+                              setCarModel(currentValue === carModel ? 'all' : currentValue)
+                              setCarModelOpen(false)
+                            }}
+                            className="text-xs"
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-3 w-3',
+                                carModel === model ? 'opacity-100' : 'opacity-0'
+                              )}
+                            />
+                            {model}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* 顧客名検索 */}
