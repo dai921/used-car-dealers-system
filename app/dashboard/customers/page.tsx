@@ -402,10 +402,10 @@ export default function CustomersPage() {
         <CardContent className="p-3">
           <div className="flex flex-wrap items-end gap-2">
             {/* 担当者 */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">担当者</Label>
               <Select value={salesRep} onValueChange={setSalesRep}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全て" />
                 </SelectTrigger>
                 <SelectContent>
@@ -418,10 +418,10 @@ export default function CustomersPage() {
             </div>
 
             {/* 店舗 */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">店舗</Label>
               <Select value={store} onValueChange={setStore}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全て" />
                 </SelectTrigger>
                 <SelectContent>
@@ -434,10 +434,10 @@ export default function CustomersPage() {
             </div>
 
             {/* 納車状況 */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">納車状況</Label>
               <Select value={deliveryStatus} onValueChange={setDeliveryStatus}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全て" />
                 </SelectTrigger>
                 <SelectContent>
@@ -450,10 +450,10 @@ export default function CustomersPage() {
             </div>
 
             {/* 車種区分（新車/中古車） */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">車種区分</Label>
               <Select value={carType} onValueChange={setCarType}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全て" />
                 </SelectTrigger>
                 <SelectContent>
@@ -466,10 +466,10 @@ export default function CustomersPage() {
             </div>
 
             {/* 商談日 */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">商談日</Label>
               <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全期間" />
                 </SelectTrigger>
                 <SelectContent>
@@ -481,7 +481,7 @@ export default function CustomersPage() {
             </div>
 
             {/* 車種（検索式Combobox） */}
-            <div className="space-y-0.5 min-w-[180px]">
+            <div className="space-y-0.5 min-w-[200px]">
               <Label className="text-xs">車種</Label>
               <Popover open={carModelOpen} onOpenChange={setCarModelOpen}>
                 <PopoverTrigger asChild>

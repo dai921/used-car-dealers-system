@@ -397,7 +397,7 @@ export default function InventoryPage() {
             <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">仕入区分</Label>
               <Select value={purchaseType} onValueChange={setPurchaseType}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全て" />
                 </SelectTrigger>
                 <SelectContent>
@@ -410,10 +410,10 @@ export default function InventoryPage() {
             </div>
 
             {/* ステータス */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">ステータス</Label>
               <Select value={inventoryStatus} onValueChange={setInventoryStatus}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-8 text-xs w-full">
                   <SelectValue placeholder="全て" />
                 </SelectTrigger>
                 <SelectContent>
@@ -426,7 +426,7 @@ export default function InventoryPage() {
             </div>
 
             {/* 在庫期間（開始） */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">在庫期間（日数）開始</Label>
               <Input 
                 type="number" 
@@ -438,7 +438,7 @@ export default function InventoryPage() {
             </div>
 
             {/* 在庫期間（終了） */}
-            <div className="space-y-0.5 min-w-[120px]">
+            <div className="space-y-0.5 min-w-[140px]">
               <Label className="text-xs">在庫期間（日数）終了</Label>
               <Input 
                 type="number" 
