@@ -103,6 +103,12 @@ export function CustomerDealTab({
     handleDealInfoChange('vinNumber', item.vehicleInfo.vinNumber)
     handleDealInfoChange('carModel', item.vehicleInfo.carModel)
     handleDealInfoChange('maker', item.vehicleInfo.maker)
+    handleDealInfoChange('color', item.vehicleInfo.color)
+    handleDealInfoChange('grade', item.vehicleInfo.grade)
+    handleDealInfoChange('year', item.vehicleInfo.year)
+    handleDealInfoChange('mileage', item.vehicleInfo.mileage)
+    handleDealInfoChange('modelType', item.vehicleInfo.modelType)
+    handleDealInfoChange('salesPrice', item.salesInfo.salesPrice)
     
     // 顧客データの車台番号と車種も更新
     setFormData({
@@ -114,6 +120,12 @@ export function CustomerDealTab({
         vinNumber: item.vehicleInfo.vinNumber,
         carModel: item.vehicleInfo.carModel,
         maker: item.vehicleInfo.maker,
+        color: item.vehicleInfo.color,
+        grade: item.vehicleInfo.grade,
+        year: item.vehicleInfo.year,
+        mileage: item.vehicleInfo.mileage,
+        modelType: item.vehicleInfo.modelType,
+        salesPrice: item.salesInfo.salesPrice,
       },
     })
     
@@ -143,6 +155,12 @@ export function CustomerDealTab({
       if (inventory) {
         handleDealInfoChange('carModel', inventory.vehicleInfo.carModel)
         handleDealInfoChange('maker', inventory.vehicleInfo.maker)
+        handleDealInfoChange('color', inventory.vehicleInfo.color)
+        handleDealInfoChange('grade', inventory.vehicleInfo.grade)
+        handleDealInfoChange('year', inventory.vehicleInfo.year)
+        handleDealInfoChange('mileage', inventory.vehicleInfo.mileage)
+        handleDealInfoChange('modelType', inventory.vehicleInfo.modelType)
+        handleDealInfoChange('salesPrice', inventory.salesInfo.salesPrice)
         
         // 顧客データの車種も更新
         setFormData({
@@ -154,6 +172,12 @@ export function CustomerDealTab({
             vinNumber: vinNumber,
             carModel: inventory.vehicleInfo.carModel,
             maker: inventory.vehicleInfo.maker,
+            color: inventory.vehicleInfo.color,
+            grade: inventory.vehicleInfo.grade,
+            year: inventory.vehicleInfo.year,
+            mileage: inventory.vehicleInfo.mileage,
+            modelType: inventory.vehicleInfo.modelType,
+            salesPrice: inventory.salesInfo.salesPrice,
           },
         })
         
@@ -205,25 +229,97 @@ export function CustomerDealTab({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="carModel">車種（自動）</Label>
+              <Label htmlFor="carModel">車種</Label>
               <Input
                 id="carModel"
                 value={formData.dealInfo.carModel}
                 onChange={(e) => handleDealInfoChange('carModel', e.target.value)}
                 placeholder="プリウス"
-                className="bg-muted"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maker">メーカー（自動）</Label>
+              <Label htmlFor="maker">メーカー</Label>
               <Input
                 id="maker"
                 value={formData.dealInfo.maker}
                 onChange={(e) => handleDealInfoChange('maker', e.target.value)}
                 placeholder="トヨタ"
-                className="bg-muted"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="color">色</Label>
+              <Input
+                id="color"
+                value={formData.dealInfo.color}
+                onChange={(e) => handleDealInfoChange('color', e.target.value)}
+                placeholder="白"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="grade">グレード</Label>
+              <Input
+                id="grade"
+                value={formData.dealInfo.grade}
+                onChange={(e) => handleDealInfoChange('grade', e.target.value)}
+                placeholder="S"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="year">年式</Label>
+              <Input
+                id="year"
+                value={formData.dealInfo.year}
+                onChange={(e) => handleDealInfoChange('year', e.target.value)}
+                placeholder="2018"
+                maxLength={4}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="mileage">走行距離</Label>
+              <div className="relative">
+                <Input
+                  id="mileage"
+                  value={formData.dealInfo.mileage}
+                  onChange={(e) => handleDealInfoChange('mileage', e.target.value)}
+                  placeholder="45000"
+                  className="pr-10"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  km
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="modelType">型式</Label>
+              <Input
+                id="modelType"
+                value={formData.dealInfo.modelType}
+                onChange={(e) => handleDealInfoChange('modelType', e.target.value)}
+                placeholder="ZVW30"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="salesPrice">販売価格</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  ¥
+                </span>
+                <Input
+                  id="salesPrice"
+                  type="number"
+                  value={formData.dealInfo.salesPrice || ''}
+                  onChange={(e) => handleDealInfoChange('salesPrice', parseInt(e.target.value) || 0)}
+                  placeholder="1380000"
+                  className="pl-8"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -13,6 +13,12 @@ export interface DealInfo {
   vinNumber: string
   carModel: string
   maker: string
+  color: string
+  grade: string
+  year: string
+  mileage: string
+  modelType: string
+  salesPrice: number
   auctionHouse: string
   shippingFee: string
   dealMemos: DealMemo[]
@@ -77,6 +83,12 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       vinNumber: '12345678901234567',
       carModel: 'プリウス',
       maker: 'トヨタ',
+      color: '白',
+      grade: 'S',
+      year: '2018',
+      mileage: '45000',
+      modelType: 'ZVW30',
+      salesPrice: 1380000,
       auctionHouse: 'オークション会場A',
       shippingFee: '¥30,000',
       dealMemos: [
@@ -119,6 +131,12 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       vinNumber: '98765432109876543',
       carModel: 'アクア',
       maker: 'トヨタ',
+      color: '黒',
+      grade: 'G',
+      year: '2020',
+      mileage: '28000',
+      modelType: 'NHP10',
+      salesPrice: 980000,
       auctionHouse: 'オークション会場B',
       shippingFee: '¥25,000',
       dealMemos: [
@@ -161,6 +179,12 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       vinNumber: '11122233344455566',
       carModel: 'カローラ',
       maker: 'トヨタ',
+      color: '',
+      grade: '',
+      year: '',
+      mileage: '',
+      modelType: '',
+      salesPrice: 0,
       auctionHouse: '',
       shippingFee: '',
       dealMemos: [
@@ -202,6 +226,12 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       vinNumber: '77788899900011122',
       carModel: 'フィット',
       maker: 'ホンダ',
+      color: '',
+      grade: '',
+      year: '',
+      mileage: '',
+      modelType: '',
+      salesPrice: 0,
       auctionHouse: 'オークション会場C',
       shippingFee: '¥35,000',
       dealMemos: [],
@@ -241,6 +271,12 @@ export const DUMMY_CUSTOMERS: Customer[] = [
       vinNumber: '',
       carModel: '',
       maker: '',
+      color: '',
+      grade: '',
+      year: '',
+      mileage: '',
+      modelType: '',
+      salesPrice: 0,
       auctionHouse: '',
       shippingFee: '',
       dealMemos: [
