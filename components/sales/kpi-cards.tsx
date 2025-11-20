@@ -5,14 +5,9 @@ import { CompanyKPI } from '@/lib/sales-data-utils'
 import { formatCurrency, formatPercentage, formatNumber } from '@/lib/sales-data-utils'
 import {
   TrendingUp,
-  Users,
   CheckCircle,
   DollarSign,
-  Zap,
-  CreditCard,
-  RefreshCw,
   Package,
-  MessageCircle,
 } from 'lucide-react'
 
 interface KPICardsProps {
@@ -28,22 +23,16 @@ export function KPICards({ kpi }: KPICardsProps) {
       color: 'text-green-600',
     },
     {
-      title: '成約率',
-      value: formatPercentage(kpi.closeRate),
-      icon: TrendingUp,
-      color: 'text-blue-600',
-    },
-    {
-      title: '商談数',
-      value: formatNumber(kpi.dealCount),
-      icon: Users,
-      color: 'text-purple-600',
-    },
-    {
       title: '成約数',
       value: formatNumber(kpi.closeCount),
       icon: CheckCircle,
       color: 'text-emerald-600',
+    },
+    {
+      title: '成約率',
+      value: formatPercentage(kpi.closeRate),
+      icon: TrendingUp,
+      color: 'text-blue-600',
     },
     {
       title: 'オプション付帯率',
@@ -52,34 +41,10 @@ export function KPICards({ kpi }: KPICardsProps) {
       color: 'text-amber-600',
       suffix: '個/成約',
     },
-    {
-      title: '即決率',
-      value: formatPercentage(kpi.instantCloseRate),
-      icon: Zap,
-      color: 'text-orange-600',
-    },
-    {
-      title: 'ローン率',
-      value: formatPercentage(kpi.loanRate),
-      icon: CreditCard,
-      color: 'text-indigo-600',
-    },
-    {
-      title: '下取率',
-      value: formatPercentage(kpi.tradeInRate),
-      icon: RefreshCw,
-      color: 'text-cyan-600',
-    },
-    {
-      title: 'LINE交換率',
-      value: formatPercentage(kpi.lineExchangeRate),
-      icon: MessageCircle,
-      color: 'text-lime-600',
-    },
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon
         return (
