@@ -148,8 +148,43 @@ export default function CustomersPage() {
             }
           }
           
+          // 納車ステータスとチェックボックスの整合性を自動修正
+          let updatedDeliveryStatus = customer.deliveryStatus
+          
+          // 納車済みなのに納車チェックがない場合
+          if (customer.deliveryStatus === '納車済み' && !dealInfo.statuses.delivered?.checked) {
+            dealInfo.statuses.delivered = {
+              checked: true,
+              date: customer.contractDate || new Date().toISOString().split('T')[0]
+            }
+          }
+          
+          // 納車待ちなのに契約チェックがない場合
+          if (customer.deliveryStatus === '納車待ち' && !dealInfo.statuses.contract?.checked) {
+            dealInfo.statuses.contract = {
+              checked: true,
+              date: customer.contractDate || new Date().toISOString().split('T')[0]
+            }
+          }
+          
+          // 商談中なのに契約チェックがある場合（矛盾を修正）
+          if (customer.deliveryStatus === '商談中' && dealInfo.statuses.contract?.checked) {
+            updatedDeliveryStatus = '納車待ち'
+          }
+          
+          // 契約チェックがあるのに商談中のまま（矛盾を修正）
+          if (dealInfo.statuses.contract?.checked && customer.deliveryStatus === '商談中') {
+            updatedDeliveryStatus = '納車待ち'
+          }
+          
+          // 納車チェックがあるのに納車済みでない（矛盾を修正）
+          if (dealInfo.statuses.delivered?.checked && customer.deliveryStatus !== '納車済み') {
+            updatedDeliveryStatus = '納車済み'
+          }
+          
           return {
             ...customer,
+            deliveryStatus: updatedDeliveryStatus,
             dealInfo,
           }
         })

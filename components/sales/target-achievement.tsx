@@ -1,0 +1,79 @@
+'use client'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency, formatPercentage } from '@/lib/sales-data-utils'
+import { Progress } from '@/components/ui/progress'
+import { Target } from 'lucide-react'
+
+interface TargetAchievementProps {
+  target: number
+  actual: number
+  title?: string
+}
+
+export function TargetAchievement({
+  target,
+  actual,
+  title = '目標達成状況',
+}: TargetAchievementProps) {
+  const achievementRate = target > 0 ? (actual / target) * 100 : 0
+  const isAchieved = achievementRate >= 100
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Target className="h-5 w-5" />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">目標売上</p>
+            <p className="text-2xl font-bold">{formatCurrency(target)}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">実績売上</p>
+            <p className="text-2xl font-bold text-primary">
+              {formatCurrency(actual)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">達成率</p>
+            <p
+              className={`text-2xl font-bold ${
+                isAchieved ? 'text-green-600' : 'text-orange-600'
+              }`}
+            >
+              {formatPercentage(achievementRate)}
+            </p>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">進捗状況</span>
+            <span className="font-medium">{formatPercentage(achievementRate)}</span>
+          </div>
+          <Progress
+            value={Math.min(achievementRate, 100)}
+            className="h-3"
+          />
+        </div>
+
+        {isAchieved && (
+          <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
+            🎉 目標を達成しました！
+          </div>
+        )}
+        {!isAchieved && achievementRate >= 80 && (
+          <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
+            あと少しで目標達成です！
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+

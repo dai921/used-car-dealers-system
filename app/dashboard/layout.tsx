@@ -23,7 +23,7 @@ interface User {
 const menuItems = [
   { icon: Users, label: '顧客管理', href: '/dashboard/customers' },
   { icon: Package, label: '在庫管理', href: '/dashboard/inventory' },
-  { icon: TrendingUp, label: '営業ダッシュボード', href: '/dashboard/sales', disabled: true },
+  { icon: TrendingUp, label: '営業ダッシュボード', href: '/dashboard/sales-dashboard' },
   { icon: LayoutDashboard, label: '営業管理', href: '/dashboard/management', disabled: true },
 ]
 

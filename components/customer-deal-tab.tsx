@@ -83,11 +83,24 @@ export function CustomerDealTab({
       updatedStatuses[statusKey as keyof typeof updatedStatuses].date = new Date().toISOString().split('T')[0]
     }
 
-    // 納車済みステータスがチェックされたらdeliveryStatusを「納車済み」に更新
-    if (statusKey === 'delivered' && field === 'checked' && value) {
+    // 商談情報のステータスと納車ステータスを連携
+    let newDeliveryStatus = formData.deliveryStatus
+    
+    if (field === 'checked') {
+      if (statusKey === 'delivered') {
+        // 納車チェックON → 納車済み / OFF → 納車待ちに戻す
+        newDeliveryStatus = value ? '納車済み' : '納車待ち'
+      } else if (statusKey === 'contract') {
+        // 契約チェックON → 納車待ち / OFF → 商談中
+        newDeliveryStatus = value ? '納車待ち' : '商談中'
+      }
+    }
+    
+    // 納車ステータスが変更された場合は同時に更新
+    if (newDeliveryStatus !== formData.deliveryStatus) {
       setFormData({
         ...formData,
-        deliveryStatus: '納車済み',
+        deliveryStatus: newDeliveryStatus,
         dealInfo: {
           ...formData.dealInfo,
           statuses: updatedStatuses,
@@ -743,7 +756,7 @@ export function CustomerDealTab({
                 </div>
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
-                後追いは営業マン管理／通知に使用されます
+                後追いは営業個人管理／通知に使用されます
               </p>
             </div>
           </div>
