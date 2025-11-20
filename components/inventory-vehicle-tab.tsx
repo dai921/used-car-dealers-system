@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Trash2 } from 'lucide-react'
 import { InventoryItem } from '@/lib/dummy-data'
 
 interface InventoryVehicleTabProps {
   formData: InventoryItem
   setFormData: (data: InventoryItem) => void
   onSave: () => void
+  onDelete?: () => void
 }
 
 const CAR_MAKERS = ['トヨタ', 'ホンダ', '日産', 'マツダ', 'スバル', 'スズキ', 'ダイハツ', 'その他']
@@ -18,6 +20,7 @@ export function InventoryVehicleTab({
   formData,
   setFormData,
   onSave,
+  onDelete,
 }: InventoryVehicleTabProps) {
   
   const updateVehicleInfo = (field: string, value: any) => {
@@ -172,8 +175,15 @@ export function InventoryVehicleTab({
         </CardContent>
       </Card>
 
-      {/* 保存ボタン */}
-      <div className="flex justify-end gap-2 pt-2">
+      {/* 保存・削除ボタン */}
+      <div className="flex justify-between gap-2 pt-2">
+        {onDelete && formData.id && (
+          <Button onClick={onDelete} variant="destructive" className="gap-2">
+            <Trash2 className="h-4 w-4" />
+            削除
+          </Button>
+        )}
+        <div className="flex-1" />
         <Button onClick={onSave} className="gap-2">
           自動保存
         </Button>

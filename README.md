@@ -1,30 +1,151 @@
-# BtoB system UI design
+# 中古車販売管理システム
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+BtoB中古車販売事業者向けの顧客管理・在庫管理システムです。
+顧客情報と在庫情報を一元管理し、商談から納車までのプロセスを効率化します。
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/nariiieeeees-projects/v0-bto-b-system-ui-design)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/ungyOqISdUY)
+## 主な機能
 
-## Overview
+### 📋 顧客管理
+- 顧客基本情報の登録・編集
+- 商談情報の管理（車両情報、進捗ステータス、商談メモ）
+- 買取情報の管理（今後実装予定）
+- 高度な検索・フィルタリング機能
+  - 担当者、店舗、納車状況、車種区分での絞り込み
+  - 車種検索（検索式Combobox）
+  - 顧客名、メモ、契約日での検索
+- カラム表示のカスタマイズ
+- ソート機能
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+### 🚗 在庫管理
+- 車両の仕入情報管理
+  - 仕入日、仕入先、入庫予定日
+  - 仕入価格、法定費用、オプション
+  - 各種税金、保険の管理
+- 車輛情報管理
+  - 車台番号、車種、メーカー、色、グレード
+  - 年式、走行距離、型式
+  - 参考価格
+- 販売情報管理
+  - 展示場所、販売価格
+  - オンライン掲載状況
+- 在庫ステータス管理
+  - 販売可能、商談中、販売済み、キャンセル
 
-## Deployment
+### 🔗 連携機能
+- 在庫と顧客の自動紐付け
+  - 車台番号による在庫検索
+  - 在庫選択ダイアログから車両情報を自動入力
+  - 17桁の車台番号入力で自動補完
+- 在庫ステータスの自動更新
+  - 顧客に紐付けると「商談中」に自動変更
+  - 納車済みで「販売済み」に自動変更
 
-Your project is live at:
+## 技術スタック
 
-**[https://vercel.com/nariiieeeees-projects/v0-bto-b-system-ui-design](https://vercel.com/nariiieeeees-projects/v0-bto-b-system-ui-design)**
+- **フレームワーク**: Next.js 16 (App Router)
+- **UI**: React 19
+- **言語**: TypeScript
+- **スタイリング**: Tailwind CSS
+- **UIコンポーネント**: shadcn/ui + Radix UI
+- **アイコン**: Lucide React
+- **データ管理**: LocalStorage（開発環境）
 
-## Build your app
+## 開発環境のセットアップ
 
-Continue building your app on:
+### 必要な環境
+- Node.js 18以上
+- pnpm（推奨）
 
-**[https://v0.app/chat/ungyOqISdUY](https://v0.app/chat/ungyOqISdUY)**
+### インストール
 
-## How It Works
+```bash
+# リポジトリのクローン
+git clone <repository-url>
+cd v0-bto-b-system-ui-design
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+# 依存関係のインストール
+pnpm install
+
+# 開発サーバーの起動
+pnpm dev
+```
+
+開発サーバーが起動したら、ブラウザで `http://localhost:3000` にアクセスしてください。
+
+### ビルド
+
+```bash
+# プロダクションビルド
+pnpm build
+
+# ビルド結果の確認
+pnpm start
+```
+
+## プロジェクト構成
+
+```
+.
+├── app/                      # Next.js App Router
+│   ├── dashboard/           # ダッシュボード関連ページ
+│   │   ├── customers/       # 顧客管理ページ
+│   │   ├── inventory/       # 在庫管理ページ
+│   │   ├── layout.tsx       # ダッシュボードレイアウト
+│   │   └── page.tsx         # ダッシュボードトップ
+│   ├── login/               # ログインページ
+│   ├── layout.tsx           # ルートレイアウト
+│   └── page.tsx             # トップページ
+├── components/              # Reactコンポーネント
+│   ├── ui/                  # shadcn/ui基本コンポーネント
+│   ├── customer-*.tsx       # 顧客関連コンポーネント
+│   └── inventory-*.tsx      # 在庫関連コンポーネント
+├── lib/                     # ユーティリティ・データ
+│   ├── dummy-data.ts        # ダミーデータと型定義
+│   ├── inventory-utils.ts   # 在庫関連ユーティリティ
+│   └── utils.ts             # 共通ユーティリティ
+└── public/                  # 静的ファイル
+```
+
+## データ構造
+
+### 顧客データ (Customer)
+- 基本情報（氏名、連絡先、住所）
+- 商談情報（DealInfo）
+  - 車両情報（車台番号、車種、メーカー、色、グレード、年式、走行距離、型式、販売価格）
+  - オークション情報
+  - 商談メモ
+  - ステータス管理（LINE連絡、成約、後追い、書類、入金）
+
+### 在庫データ (InventoryItem)
+- 仕入情報（PurchaseInfo）
+- 車輛情報（VehicleInfo）
+- 販売情報（SalesInfo）
+- ステータス（available/negotiating/sold/cancelled）
+
+## 主な機能の使い方
+
+### 顧客と在庫の紐付け
+
+1. **在庫選択ダイアログから選択**
+   - 顧客の商談情報タブで「在庫から選択」ボタンをクリック
+   - 在庫一覧から車両を選択
+   - 車両情報が自動入力されます
+
+2. **車台番号の直接入力**
+   - 車台番号フィールドに17桁の番号を入力
+   - 在庫データベースに存在する場合、自動的に車両情報が補完されます
+
+### 検索機能
+
+- **プルダウン式**: 担当者、店舗、納車状況、車種区分、商談日
+- **検索式Combobox**: 車種（入力して絞り込み可能）
+- **テキスト検索**: 顧客名、メモ
+- **日付範囲**: 契約日（開始〜終了）
+
+## ライセンス
+
+このプロジェクトは私的利用を目的としています。
+
+## 開発者
+
+開発に関する質問やフィードバックは、Issuesまでお願いします。

@@ -6,12 +6,14 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Trash2 } from 'lucide-react'
 import { InventoryItem } from '@/lib/dummy-data'
 
 interface InventorySalesTabProps {
   formData: InventoryItem
   setFormData: (data: InventoryItem) => void
   onSave: () => void
+  onDelete?: () => void
 }
 
 const DISPLAY_LOCATIONS = [
@@ -29,6 +31,7 @@ export function InventorySalesTab({
   formData,
   setFormData,
   onSave,
+  onDelete,
 }: InventorySalesTabProps) {
   
   const updateSalesInfo = (field: string, value: any) => {
@@ -124,8 +127,15 @@ export function InventorySalesTab({
         </CardContent>
       </Card>
 
-      {/* 保存ボタン */}
-      <div className="flex justify-end gap-2 pt-2">
+      {/* 保存・削除ボタン */}
+      <div className="flex justify-between gap-2 pt-2">
+        {onDelete && formData.id && (
+          <Button onClick={onDelete} variant="destructive" className="gap-2">
+            <Trash2 className="h-4 w-4" />
+            削除
+          </Button>
+        )}
+        <div className="flex-1" />
         <Button onClick={onSave} className="gap-2">
           自動保存
         </Button>

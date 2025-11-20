@@ -27,6 +27,7 @@ interface InventoryPurchaseTabProps {
   formData: InventoryItem
   setFormData: (data: InventoryItem) => void
   onSave: () => void
+  onDelete?: () => void
 }
 
 const STORES = ['本店', '支店A', '支店B']
@@ -38,6 +39,7 @@ export function InventoryPurchaseTab({
   formData,
   setFormData,
   onSave,
+  onDelete,
 }: InventoryPurchaseTabProps) {
   
   const updatePurchaseInfo = (field: string, value: any) => {
@@ -518,8 +520,15 @@ export function InventoryPurchaseTab({
         </CardContent>
       </Card>
 
-      {/* 保存ボタン */}
-      <div className="flex justify-end gap-2 pt-2">
+      {/* 保存・削除ボタン */}
+      <div className="flex justify-between gap-2 pt-2">
+        {onDelete && formData.id && (
+          <Button onClick={onDelete} variant="destructive" className="gap-2">
+            <Trash2 className="h-4 w-4" />
+            削除
+          </Button>
+        )}
+        <div className="flex-1" />
         <Button onClick={onSave} className="gap-2">
           自動保存
         </Button>

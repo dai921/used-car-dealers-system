@@ -285,6 +285,47 @@ export default function InventoryPage() {
     setSelectedItem(null)
   }
 
+  const handleDelete = (item: InventoryItem) => {
+    console.log('[Inventory] Deleting item:', item)
+    
+    // 顧客との紐付けを解除
+    if (item.customerId) {
+      const storedCustomers = localStorage.getItem('customers')
+      if (storedCustomers) {
+        try {
+          const customers = JSON.parse(storedCustomers)
+          const updatedCustomers = customers.map((customer: any) => {
+            if (customer.id === item.customerId) {
+              return {
+                ...customer,
+                vinNumber: '',
+                dealInfo: {
+                  ...customer.dealInfo,
+                  vinNumber: '',
+                }
+              }
+            }
+            return customer
+          })
+          localStorage.setItem('customers', JSON.stringify(updatedCustomers))
+          console.log('[Inventory] Released customer binding for:', item.customerId)
+        } catch (e) {
+          console.error('[Inventory] Failed to update customer data:', e)
+        }
+      }
+    }
+    
+    // 在庫を削除
+    const updated = inventory.filter(i => i.id !== item.id)
+    localStorage.setItem('inventory', JSON.stringify(updated))
+    setInventory(updated)
+    
+    console.log('[Inventory] Deleted item and saved to localStorage')
+    
+    setIsModalOpen(false)
+    setSelectedItem(null)
+  }
+
   // 金額フォーマット
   const formatCurrency = (value: number): string => {
     return `¥${value.toLocaleString()}`
@@ -674,6 +715,7 @@ export default function InventoryPage() {
         onOpenChange={setIsModalOpen}
         item={selectedItem}
         onSave={handleSave}
+        onDelete={selectedItem ? handleDelete : undefined}
       />
     </div>
   )

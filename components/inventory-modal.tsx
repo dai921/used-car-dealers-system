@@ -20,6 +20,7 @@ interface InventoryModalProps {
   onOpenChange: (open: boolean) => void
   item: InventoryItem | null
   onSave: (item: InventoryItem) => void
+  onDelete?: (item: InventoryItem) => void
 }
 
 export function InventoryModal({
@@ -27,6 +28,7 @@ export function InventoryModal({
   onOpenChange,
   item,
   onSave,
+  onDelete,
 }: InventoryModalProps) {
   const { toast } = useToast()
   
@@ -168,6 +170,18 @@ export function InventoryModal({
     })
   }
 
+  const handleDelete = () => {
+    if (item && onDelete) {
+      if (window.confirm(`${item.vehicleInfo.carModel} (${item.vehicleInfo.vinNumber}) を削除してもよろしいですか？\n\nこの操作は取り消せません。`)) {
+        onDelete(item)
+        toast({
+          title: '削除しました',
+          description: '在庫情報を削除しました',
+        })
+      }
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl sm:max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -192,6 +206,7 @@ export function InventoryModal({
               formData={formData}
               setFormData={setFormData}
               onSave={handleSave}
+              onDelete={item && onDelete ? handleDelete : undefined}
             />
           </TabsContent>
 
@@ -200,6 +215,7 @@ export function InventoryModal({
               formData={formData}
               setFormData={setFormData}
               onSave={handleSave}
+              onDelete={item && onDelete ? handleDelete : undefined}
             />
           </TabsContent>
 
@@ -208,6 +224,7 @@ export function InventoryModal({
               formData={formData}
               setFormData={setFormData}
               onSave={handleSave}
+              onDelete={item && onDelete ? handleDelete : undefined}
             />
           </TabsContent>
         </Tabs>
