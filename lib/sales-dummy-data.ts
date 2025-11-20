@@ -19,6 +19,9 @@ export const SALES_TARGETS = {
   '山本': 6500000,
 }
 
+// 全社目標台数（月間）
+export const COMPANY_TARGET_UNITS = 12
+
 // 全社目標売上（月間）
 export const COMPANY_TARGET = 37500000
 

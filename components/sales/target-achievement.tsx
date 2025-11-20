@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrency, formatPercentage } from '@/lib/sales-data-utils'
+import { formatPercentage } from '@/lib/sales-data-utils'
 import { Progress } from '@/components/ui/progress'
 import { Target } from 'lucide-react'
 
@@ -30,13 +30,13 @@ export function TargetAchievement({
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">目標売上</p>
-            <p className="text-2xl font-bold">{formatCurrency(target)}</p>
+            <p className="text-sm text-muted-foreground">目標台数</p>
+            <p className="text-2xl font-bold">{target}<span className="ml-1 text-base text-muted-foreground">台</span></p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">実績売上</p>
+            <p className="text-sm text-muted-foreground">販売台数</p>
             <p className="text-2xl font-bold text-primary">
-              {formatCurrency(actual)}
+              {actual}<span className="ml-1 text-base text-muted-foreground">台</span>
             </p>
           </div>
           <div className="space-y-1">

@@ -33,12 +33,11 @@ export function getSalesReps(customers: Customer[]): string[] {
   return Array.from(reps).filter((rep) => rep).sort()
 }
 
-// 期間でフィルタリング
-export function filterByPeriod(
-  customers: Customer[],
+// 期間の日数を取得
+function getPeriodDates(
   periodType: PeriodType,
   customRange?: DateRange
-): Customer[] {
+): { startDate: Date; endDate: Date } {
   const now = new Date('2025-02-15') // プロトタイプ用の基準日
   let startDate: Date
   let endDate: Date
@@ -53,8 +52,38 @@ export function filterByPeriod(
     startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     endDate = new Date(now.getFullYear(), now.getMonth(), 0)
   } else {
-    return customers
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
   }
+
+  return { startDate, endDate }
+}
+
+// 期間に応じた目標台数を計算（月間目標を基準に日割り計算）
+export function calculateTargetUnits(
+  monthlyTarget: number,
+  periodType: PeriodType,
+  customRange?: DateRange
+): number {
+  const { startDate, endDate } = getPeriodDates(periodType, customRange)
+  
+  // 期間の日数を計算
+  const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  
+  // 月の平均日数（30.44日）で日割り計算
+  const averageDaysPerMonth = 30.44
+  const targetUnits = Math.round((monthlyTarget / averageDaysPerMonth) * daysDiff)
+  
+  return targetUnits
+}
+
+// 期間でフィルタリング
+export function filterByPeriod(
+  customers: Customer[],
+  periodType: PeriodType,
+  customRange?: DateRange
+): Customer[] {
+  const { startDate, endDate } = getPeriodDates(periodType, customRange)
 
   return customers.filter((customer) => {
     const addedDate = new Date(customer.addedDate)

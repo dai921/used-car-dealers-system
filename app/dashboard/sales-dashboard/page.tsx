@@ -13,9 +13,10 @@ import {
   filterByPeriod,
   calculateCompanyKPIs,
   calculateAllSalesRepsKPIs,
+  calculateTargetUnits,
 } from '@/lib/sales-data-utils'
 import { DUMMY_CUSTOMERS, Customer } from '@/lib/dummy-data'
-import { COMPANY_TARGET } from '@/lib/sales-dummy-data'
+import { COMPANY_TARGET_UNITS } from '@/lib/sales-dummy-data'
 import { ArrowRight, BarChart3 } from 'lucide-react'
 
 export default function SalesDashboardPage() {
@@ -62,6 +63,11 @@ export default function SalesDashboardPage() {
     return calculateAllSalesRepsKPIs(filteredCustomers)
   }, [filteredCustomers])
 
+  // 期間に応じた目標台数を計算
+  const targetUnits = useMemo(() => {
+    return calculateTargetUnits(COMPANY_TARGET_UNITS, periodType, customRange)
+  }, [periodType, customRange])
+
   return (
     <div className="space-y-6">
       {/* ヘッダー */}
@@ -96,8 +102,8 @@ export default function SalesDashboardPage() {
 
       {/* 目標達成率 */}
       <TargetAchievement
-        target={COMPANY_TARGET}
-        actual={companyKPI.sales}
+        target={targetUnits}
+        actual={companyKPI.closeCount}
         title="全社目標達成状況"
       />
 
@@ -109,9 +115,6 @@ export default function SalesDashboardPage() {
 
       {/* 注釈 */}
       <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground">
-        <p>
-          ※ このダッシュボードはプロトタイプです。実際の運用では、リアルタイムでデータが更新されます。
-        </p>
         <p className="mt-1">
           ※ 各営業個人の行をクリックすると、詳細分析ページへ遷移できます（実装予定）。
         </p>
@@ -119,4 +122,3 @@ export default function SalesDashboardPage() {
     </div>
   )
 }
-
