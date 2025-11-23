@@ -62,16 +62,6 @@ export function TargetAchievement({
           />
         </div>
 
-        {isAchieved && (
-          <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
-            🎉 目標を達成しました！
-          </div>
-        )}
-        {!isAchieved && achievementRate >= 80 && (
-          <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
-            あと少しで目標達成です！
-          </div>
-        )}
       </CardContent>
     </Card>
   )
